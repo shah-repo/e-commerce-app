@@ -1,0 +1,5 @@
+spring:
+  config:
+    import: optional:configserver:http://localhost:8888
+  application:
+    name: discovery-service #this name is important, using this name we create yml config fie in config server

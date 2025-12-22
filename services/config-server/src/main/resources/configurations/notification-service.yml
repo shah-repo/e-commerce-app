@@ -1,0 +1,36 @@
+spring:
+  data:
+    mongodb:
+      username: shah
+      password: shah
+      host: localhost
+      port: 27017
+      database: customer
+      authentication-database: admin
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      groups-id: paymentGroup,orderGroup
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*' # for local env, but for production we eed to specify particular packages with ',' seprated list.
+        spring.json.type.mapping: orderConfirmation:com.shah.ecommerce.kafka.order.OrderConfirmation,paymentConfirmation:com.shah.ecommerce.kafka.payment.PaymentConfirmation
+  mail:
+    host: localhost
+    port: 1025
+    username: shah
+    password: shah
+    properties:
+      mail:
+        smtp:
+          trust: "*"
+        auth: true
+        starttls:
+          enabled: true
+        connectiontimeout: 5000
+        timeout: 3000
+        writetimeout: 5000
+server:
+  port: 8040

@@ -1,0 +1,5 @@
+spring:
+  config:
+    import: optional:configserver:http://localhost:8888 # optional: means if it can't pull config from configserver, then app wil start with default config
+  application:
+    name: gateway-service
