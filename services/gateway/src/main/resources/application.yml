@@ -3,3 +3,9 @@ spring:
     import: optional:configserver:http://localhost:8888 # optional: means if it can't pull config from configserver, then app wil start with default config
   application:
     name: gateway-service
+
+application:
+  security:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      expiration: 86400000
