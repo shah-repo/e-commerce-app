@@ -1,11 +1,18 @@
 spring:
   cloud:
     gateway:
+      httpclient:
+        connect-timeout: 3000
+        response-timeout: 15s
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
       routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/v1/auth/**
         - id: customer-service
           uri: lb://customer-service
           predicates:

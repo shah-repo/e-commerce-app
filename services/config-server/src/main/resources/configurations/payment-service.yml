@@ -15,6 +15,7 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
+        max.block.ms: 5000
         spring.json.type.mapping: paymentConfirmation:com.shah.ecommerce.notification.PaymentNotificationRequest
   flyway:
     baseline-on-migrate: true
