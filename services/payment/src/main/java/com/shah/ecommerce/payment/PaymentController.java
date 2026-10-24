@@ -8,13 +8,22 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/payments")
 @RequiredArgsConstructor
-public class PaymentController
-{
+public class PaymentController {
+
     private final PaymentService paymentService;
+
     @PostMapping
     public ResponseEntity<Integer> makePayment(
             @RequestBody @Valid PaymentRequest paymentRequest
-    ){
+    ) {
         return ResponseEntity.ok(paymentService.createPayment(paymentRequest));
+    }
+
+    @DeleteMapping("/{payment-id}")
+    public ResponseEntity<Void> cancelPayment(
+            @PathVariable("payment-id") Integer paymentId
+    ) {
+        paymentService.cancelPayment(paymentId);
+        return ResponseEntity.accepted().build();
     }
 }
