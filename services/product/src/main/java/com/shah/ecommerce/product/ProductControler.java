@@ -24,6 +24,12 @@ public class ProductControler {
         return ResponseEntity.ok(service.purchaseProduct(request));
     }
 
+    @PostMapping("/purchase/rollback")
+    public ResponseEntity<Void> rollbackPurchase(@RequestBody @Valid List<ProductPurchaseRequest> request){
+        service.rollbackPurchase(request);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/{product-id}")
     public ResponseEntity<ProductResponse> findById(@PathVariable("product-id") Integer productId){
         return ResponseEntity.ok(service.findById(productId));

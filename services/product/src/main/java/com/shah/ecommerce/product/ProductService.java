@@ -5,10 +5,12 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -26,7 +28,7 @@ public class ProductService {
     public ProductResponse findById(Integer productId) {
         return repository.findById(productId)
                 .map(mapper::toProductResponse)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found with the given ID:: %s" + productId));
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Product not found with the given ID:: %s", productId)));
     }
 
     public List<ProductResponse> findAll() {
@@ -35,6 +37,7 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public List<ProductPurchaseResponse> purchaseProduct(List<ProductPurchaseRequest> request) {
         var productIds = request.stream().map(ProductPurchaseRequest::productId).toList();
         var storedProducts = repository.findAllByIdInOrderById(productIds);
@@ -51,7 +54,7 @@ public class ProductService {
             var storedProduct = storedProducts.get(i);
             var requestedProduct = requestedProducts.get(i);
             if (storedProduct.getAvailableQuantity() < requestedProduct.quantity()){
-                throw new ProductPurchaseException("Insufficient stock quantity for product with ID:: %s" + storedProduct.getId());
+                throw new ProductPurchaseException(String.format("Insufficient stock quantity for product with ID:: %s", storedProduct.getId()));
             }
             var newAvailableQuantity = storedProduct.getAvailableQuantity() - requestedProduct.quantity();
             storedProduct.setAvailableQuantity(newAvailableQuantity);
@@ -61,5 +64,22 @@ public class ProductService {
         }
 
         return purchasedProducts;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void rollbackPurchase(List<ProductPurchaseRequest> request) {
+        var productIds = request.stream().map(ProductPurchaseRequest::productId).distinct().toList();
+        var storedProducts = repository.findAllByIdInOrderById(productIds);
+        if (storedProducts.size() != productIds.size()){
+            throw new ProductPurchaseException("One or more products doesn't exists");
+        }
+
+        var productsById = storedProducts.stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+        for (ProductPurchaseRequest requestedProduct : request){
+            var storedProduct = productsById.get(requestedProduct.productId());
+            storedProduct.setAvailableQuantity(storedProduct.getAvailableQuantity() + requestedProduct.quantity());
+        }
+        repository.saveAll(storedProducts);
     }
 }

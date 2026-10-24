@@ -9,3 +9,9 @@ spring:
   cloud:
     config:
       override-system-properties: false
+
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY:+rplLsk+ZtNlLp+S2M7zrTu2HWVZQ0miRXGW6BvvfhQ9mOK4FtQfkkh35/Ssgz5l}
+      expiration: 86400000
