@@ -1,6 +1,8 @@
 package com.shah.ecommerce.order;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.shah.ecommerce.product.PurchaseRequest;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -11,16 +13,15 @@ import java.util.List;
 
 public record OrderRequest(
         Integer id,
-        String reference,
+        @JsonAlias({"amount", "ammount"})
         @Positive(message = "Order amount should be positive")
         BigDecimal ammount,
-        @NotNull(message = "Payment method should be precised")
+        @NotNull(message = "Payment method is required")
         PaymentMethod paymentMethod,
-        @NotNull(message = "Payment method should be precised")
-        @NotEmpty(message = "Payment method should be precised")
-        @NotBlank(message = "Payment method should be precised")
+        @NotBlank(message = "Customer ID is required")
         String customerId,
-        @NotEmpty(message = "You should at least purchase one product")
+        @NotEmpty(message = "You should purchase at least one product")
+        @Valid
         List<PurchaseRequest> products
 ) {
 }

@@ -22,7 +22,7 @@ public class CustomerService {
 
     public void updateCustomer(CustomerRequest request) {
         var customer = repository.findById(request.getId()).orElseThrow(()-> new CustomerNotFoundException(
-                String.format("Can't update customer:: No customer found with the given id:: %s", request.getId())
+                String.format("Cannot update customer: No customer found with ID '%s'.", request.getId())
         ));
         mergeCustomer(customer,request);
         repository.save(customer);
@@ -55,7 +55,7 @@ public class CustomerService {
         return repository.findById(customerId)
                 .map(mapper::fromCustomer)
                 .orElseThrow(()-> new CustomerNotFoundException(
-                String.format("Can't update customer:: No customer found with the given id:: %s", customerId)
+                String.format("No customer found with ID '%s'.", customerId)
         ));
     }
 
