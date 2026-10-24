@@ -22,10 +22,7 @@ public class ProductClient {
     private final RestTemplate restTemplate;
 
     public List<PurchaseResponse> purchaseProducts(List<PurchaseRequest> requestBody){
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
-
-        HttpEntity<List<PurchaseRequest>> requestEntity = new HttpEntity<>(requestBody, headers);
+        HttpEntity<List<PurchaseRequest>> requestEntity = new HttpEntity<>(requestBody, jsonHeaders());
         ParameterizedTypeReference<List<PurchaseResponse>> responseType = new ParameterizedTypeReference<>() {};
         ResponseEntity<List<PurchaseResponse>> responseEntity = restTemplate.exchange(
                 productUrl+"/purchase",
@@ -39,5 +36,25 @@ public class ProductClient {
         }
 
         return responseEntity.getBody();
+    }
+
+    public void rollbackPurchase(List<PurchaseRequest> requestBody){
+        HttpEntity<List<PurchaseRequest>> requestEntity = new HttpEntity<>(requestBody, jsonHeaders());
+        ResponseEntity<Void> responseEntity = restTemplate.exchange(
+                productUrl+"/purchase/rollback",
+                POST,
+                requestEntity,
+                Void.class
+        );
+
+        if (responseEntity.getStatusCode().isError()){
+            throw new BusinessException("An error occurred while rolling back the purchase request: "+ responseEntity.getStatusCode());
+        }
+    }
+
+    private HttpHeaders jsonHeaders(){
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
+        return headers;
     }
 }

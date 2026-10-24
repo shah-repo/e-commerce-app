@@ -1,0 +1,3100 @@
+diff --git a/services/auth/.gitattributes b/services/auth/.gitattributes
+new file mode 100644
+index 0000000..3b41682
+--- /dev/null
++++ b/services/auth/.gitattributes
+@@ -0,0 +1,2 @@
++/mvnw text eol=lf
++*.cmd text eol=crlf
+diff --git a/services/auth/.gitignore b/services/auth/.gitignore
+new file mode 100644
+index 0000000..2255abf
+--- /dev/null
++++ b/services/auth/.gitignore
+@@ -0,0 +1,33 @@
++HELP.md
++target/
++.mvn/wrapper/maven-wrapper.jar
++!**/src/main/**/target/
++!**/src/test/**/target/
++
++### STS ###
++.apt_generated
++.classpath
++.factorypath
++.project
++.settings
++.springBeans
++.sts4-cache
++
++### IntelliJ IDEA ###
++.idea/**
++*.iws
++*.iml
++*.ipr
++
++### NetBeans ###
++/nbproject/private/
++/nbbuild/
++/dist/
++/nbdist/
++/.nb-gradle/
++build/
++!**/src/main/**/build/
++!**/src/test/**/build/
++
++### VS Code ###
++.vscode/
+diff --git a/services/auth/.mvn/wrapper/maven-wrapper.properties b/services/auth/.mvn/wrapper/maven-wrapper.properties
+new file mode 100644
+index 0000000..44f3cf2
+--- /dev/null
++++ b/services/auth/.mvn/wrapper/maven-wrapper.properties
+@@ -0,0 +1,2 @@
++distributionType=only-script
++distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.11/apache-maven-3.9.11-bin.zip
+diff --git a/services/auth/mvnw b/services/auth/mvnw
+new file mode 100755
+index 0000000..e9cf8d3
+--- /dev/null
++++ b/services/auth/mvnw
+@@ -0,0 +1,295 @@
++#!/bin/sh
++# ----------------------------------------------------------------------------
++# Licensed to the Apache Software Foundation (ASF) under one
++# or more contributor license agreements.  See the NOTICE file
++# distributed with this work for additional information
++# regarding copyright ownership.  The ASF licenses this file
++# to you under the Apache License, Version 2.0 (the
++# "License"); you may not use this file except in compliance
++# with the License.  You may obtain a copy of the License at
++#
++#    http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing,
++# software distributed under the License is distributed on an
++# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++# KIND, either express or implied.  See the License for the
++# specific language governing permissions and limitations
++# under the License.
++# ----------------------------------------------------------------------------
++
++# ----------------------------------------------------------------------------
++# Apache Maven Wrapper startup batch script, version 3.3.3
++#
++# Optional ENV vars
++# -----------------
++#   JAVA_HOME - location of a JDK home dir, required when download maven via java source
++#   MVNW_REPOURL - repo url base for downloading maven distribution
++#   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
++#   MVNW_VERBOSE - true: enable verbose log; debug: trace the mvnw script; others: silence the output
++# ----------------------------------------------------------------------------
++
++set -euf
++[ "${MVNW_VERBOSE-}" != debug ] || set -x
++
++# OS specific support.
++native_path() { printf %s\\n "$1"; }
++case "$(uname)" in
++CYGWIN* | MINGW*)
++  [ -z "${JAVA_HOME-}" ] || JAVA_HOME="$(cygpath --unix "$JAVA_HOME")"
++  native_path() { cygpath --path --windows "$1"; }
++  ;;
++esac
++
++# set JAVACMD and JAVACCMD
++set_java_home() {
++  # For Cygwin and MinGW, ensure paths are in Unix format before anything is touched
++  if [ -n "${JAVA_HOME-}" ]; then
++    if [ -x "$JAVA_HOME/jre/sh/java" ]; then
++      # IBM's JDK on AIX uses strange locations for the executables
++      JAVACMD="$JAVA_HOME/jre/sh/java"
++      JAVACCMD="$JAVA_HOME/jre/sh/javac"
++    else
++      JAVACMD="$JAVA_HOME/bin/java"
++      JAVACCMD="$JAVA_HOME/bin/javac"
++
++      if [ ! -x "$JAVACMD" ] || [ ! -x "$JAVACCMD" ]; then
++        echo "The JAVA_HOME environment variable is not defined correctly, so mvnw cannot run." >&2
++        echo "JAVA_HOME is set to \"$JAVA_HOME\", but \"\$JAVA_HOME/bin/java\" or \"\$JAVA_HOME/bin/javac\" does not exist." >&2
++        return 1
++      fi
++    fi
++  else
++    JAVACMD="$(
++      'set' +e
++      'unset' -f command 2>/dev/null
++      'command' -v java
++    )" || :
++    JAVACCMD="$(
++      'set' +e
++      'unset' -f command 2>/dev/null
++      'command' -v javac
++    )" || :
++
++    if [ ! -x "${JAVACMD-}" ] || [ ! -x "${JAVACCMD-}" ]; then
++      echo "The java/javac command does not exist in PATH nor is JAVA_HOME set, so mvnw cannot run." >&2
++      return 1
++    fi
++  fi
++}
++
++# hash string like Java String::hashCode
++hash_string() {
++  str="${1:-}" h=0
++  while [ -n "$str" ]; do
++    char="${str%"${str#?}"}"
++    h=$(((h * 31 + $(LC_CTYPE=C printf %d "'$char")) % 4294967296))
++    str="${str#?}"
++  done
++  printf %x\\n $h
++}
++
++verbose() { :; }
++[ "${MVNW_VERBOSE-}" != true ] || verbose() { printf %s\\n "${1-}"; }
++
++die() {
++  printf %s\\n "$1" >&2
++  exit 1
++}
++
++trim() {
++  # MWRAPPER-139:
++  #   Trims trailing and leading whitespace, carriage returns, tabs, and linefeeds.
++  #   Needed for removing poorly interpreted newline sequences when running in more
++  #   exotic environments such as mingw bash on Windows.
++  printf "%s" "${1}" | tr -d '[:space:]'
++}
++
++scriptDir="$(dirname "$0")"
++scriptName="$(basename "$0")"
++
++# parse distributionUrl and optional distributionSha256Sum, requires .mvn/wrapper/maven-wrapper.properties
++while IFS="=" read -r key value; do
++  case "${key-}" in
++  distributionUrl) distributionUrl=$(trim "${value-}") ;;
++  distributionSha256Sum) distributionSha256Sum=$(trim "${value-}") ;;
++  esac
++done <"$scriptDir/.mvn/wrapper/maven-wrapper.properties"
++[ -n "${distributionUrl-}" ] || die "cannot read distributionUrl property in $scriptDir/.mvn/wrapper/maven-wrapper.properties"
++
++case "${distributionUrl##*/}" in
++maven-mvnd-*bin.*)
++  MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/
++  case "${PROCESSOR_ARCHITECTURE-}${PROCESSOR_ARCHITEW6432-}:$(uname -a)" in
++  *AMD64:CYGWIN* | *AMD64:MINGW*) distributionPlatform=windows-amd64 ;;
++  :Darwin*x86_64) distributionPlatform=darwin-amd64 ;;
++  :Darwin*arm64) distributionPlatform=darwin-aarch64 ;;
++  :Linux*x86_64*) distributionPlatform=linux-amd64 ;;
++  *)
++    echo "Cannot detect native platform for mvnd on $(uname)-$(uname -m), use pure java version" >&2
++    distributionPlatform=linux-amd64
++    ;;
++  esac
++  distributionUrl="${distributionUrl%-bin.*}-$distributionPlatform.zip"
++  ;;
++maven-mvnd-*) MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/ ;;
++*) MVN_CMD="mvn${scriptName#mvnw}" _MVNW_REPO_PATTERN=/org/apache/maven/ ;;
++esac
++
++# apply MVNW_REPOURL and calculate MAVEN_HOME
++# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
++[ -z "${MVNW_REPOURL-}" ] || distributionUrl="$MVNW_REPOURL$_MVNW_REPO_PATTERN${distributionUrl#*"$_MVNW_REPO_PATTERN"}"
++distributionUrlName="${distributionUrl##*/}"
++distributionUrlNameMain="${distributionUrlName%.*}"
++distributionUrlNameMain="${distributionUrlNameMain%-bin}"
++MAVEN_USER_HOME="${MAVEN_USER_HOME:-${HOME}/.m2}"
++MAVEN_HOME="${MAVEN_USER_HOME}/wrapper/dists/${distributionUrlNameMain-}/$(hash_string "$distributionUrl")"
++
++exec_maven() {
++  unset MVNW_VERBOSE MVNW_USERNAME MVNW_PASSWORD MVNW_REPOURL || :
++  exec "$MAVEN_HOME/bin/$MVN_CMD" "$@" || die "cannot exec $MAVEN_HOME/bin/$MVN_CMD"
++}
++
++if [ -d "$MAVEN_HOME" ]; then
++  verbose "found existing MAVEN_HOME at $MAVEN_HOME"
++  exec_maven "$@"
++fi
++
++case "${distributionUrl-}" in
++*?-bin.zip | *?maven-mvnd-?*-?*.zip) ;;
++*) die "distributionUrl is not valid, must match *-bin.zip or maven-mvnd-*.zip, but found '${distributionUrl-}'" ;;
++esac
++
++# prepare tmp dir
++if TMP_DOWNLOAD_DIR="$(mktemp -d)" && [ -d "$TMP_DOWNLOAD_DIR" ]; then
++  clean() { rm -rf -- "$TMP_DOWNLOAD_DIR"; }
++  trap clean HUP INT TERM EXIT
++else
++  die "cannot create temp dir"
++fi
++
++mkdir -p -- "${MAVEN_HOME%/*}"
++
++# Download and Install Apache Maven
++verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
++verbose "Downloading from: $distributionUrl"
++verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
++
++# select .zip or .tar.gz
++if ! command -v unzip >/dev/null; then
++  distributionUrl="${distributionUrl%.zip}.tar.gz"
++  distributionUrlName="${distributionUrl##*/}"
++fi
++
++# verbose opt
++__MVNW_QUIET_WGET=--quiet __MVNW_QUIET_CURL=--silent __MVNW_QUIET_UNZIP=-q __MVNW_QUIET_TAR=''
++[ "${MVNW_VERBOSE-}" != true ] || __MVNW_QUIET_WGET='' __MVNW_QUIET_CURL='' __MVNW_QUIET_UNZIP='' __MVNW_QUIET_TAR=v
++
++# normalize http auth
++case "${MVNW_PASSWORD:+has-password}" in
++'') MVNW_USERNAME='' MVNW_PASSWORD='' ;;
++has-password) [ -n "${MVNW_USERNAME-}" ] || MVNW_USERNAME='' MVNW_PASSWORD='' ;;
++esac
++
++if [ -z "${MVNW_USERNAME-}" ] && command -v wget >/dev/null; then
++  verbose "Found wget ... using wget"
++  wget ${__MVNW_QUIET_WGET:+"$__MVNW_QUIET_WGET"} "$distributionUrl" -O "$TMP_DOWNLOAD_DIR/$distributionUrlName" || die "wget: Failed to fetch $distributionUrl"
++elif [ -z "${MVNW_USERNAME-}" ] && command -v curl >/dev/null; then
++  verbose "Found curl ... using curl"
++  curl ${__MVNW_QUIET_CURL:+"$__MVNW_QUIET_CURL"} -f -L -o "$TMP_DOWNLOAD_DIR/$distributionUrlName" "$distributionUrl" || die "curl: Failed to fetch $distributionUrl"
++elif set_java_home; then
++  verbose "Falling back to use Java to download"
++  javaSource="$TMP_DOWNLOAD_DIR/Downloader.java"
++  targetZip="$TMP_DOWNLOAD_DIR/$distributionUrlName"
++  cat >"$javaSource" <<-END
++	public class Downloader extends java.net.Authenticator
++	{
++	  protected java.net.PasswordAuthentication getPasswordAuthentication()
++	  {
++	    return new java.net.PasswordAuthentication( System.getenv( "MVNW_USERNAME" ), System.getenv( "MVNW_PASSWORD" ).toCharArray() );
++	  }
++	  public static void main( String[] args ) throws Exception
++	  {
++	    setDefault( new Downloader() );
++	    java.nio.file.Files.copy( java.net.URI.create( args[0] ).toURL().openStream(), java.nio.file.Paths.get( args[1] ).toAbsolutePath().normalize() );
++	  }
++	}
++	END
++  # For Cygwin/MinGW, switch paths to Windows format before running javac and java
++  verbose " - Compiling Downloader.java ..."
++  "$(native_path "$JAVACCMD")" "$(native_path "$javaSource")" || die "Failed to compile Downloader.java"
++  verbose " - Running Downloader.java ..."
++  "$(native_path "$JAVACMD")" -cp "$(native_path "$TMP_DOWNLOAD_DIR")" Downloader "$distributionUrl" "$(native_path "$targetZip")"
++fi
++
++# If specified, validate the SHA-256 sum of the Maven distribution zip file
++if [ -n "${distributionSha256Sum-}" ]; then
++  distributionSha256Result=false
++  if [ "$MVN_CMD" = mvnd.sh ]; then
++    echo "Checksum validation is not supported for maven-mvnd." >&2
++    echo "Please disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
++    exit 1
++  elif command -v sha256sum >/dev/null; then
++    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | sha256sum -c - >/dev/null 2>&1; then
++      distributionSha256Result=true
++    fi
++  elif command -v shasum >/dev/null; then
++    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | shasum -a 256 -c >/dev/null 2>&1; then
++      distributionSha256Result=true
++    fi
++  else
++    echo "Checksum validation was requested but neither 'sha256sum' or 'shasum' are available." >&2
++    echo "Please install either command, or disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
++    exit 1
++  fi
++  if [ $distributionSha256Result = false ]; then
++    echo "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised." >&2
++    echo "If you updated your Maven version, you need to update the specified distributionSha256Sum property." >&2
++    exit 1
++  fi
++fi
++
++# unzip and move
++if command -v unzip >/dev/null; then
++  unzip ${__MVNW_QUIET_UNZIP:+"$__MVNW_QUIET_UNZIP"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -d "$TMP_DOWNLOAD_DIR" || die "failed to unzip"
++else
++  tar xzf${__MVNW_QUIET_TAR:+"$__MVNW_QUIET_TAR"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -C "$TMP_DOWNLOAD_DIR" || die "failed to untar"
++fi
++
++# Find the actual extracted directory name (handles snapshots where filename != directory name)
++actualDistributionDir=""
++
++# First try the expected directory name (for regular distributions)
++if [ -d "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain" ]; then
++  if [ -f "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain/bin/$MVN_CMD" ]; then
++    actualDistributionDir="$distributionUrlNameMain"
++  fi
++fi
++
++# If not found, search for any directory with the Maven executable (for snapshots)
++if [ -z "$actualDistributionDir" ]; then
++  # enable globbing to iterate over items
++  set +f
++  for dir in "$TMP_DOWNLOAD_DIR"/*; do
++    if [ -d "$dir" ]; then
++      if [ -f "$dir/bin/$MVN_CMD" ]; then
++        actualDistributionDir="$(basename "$dir")"
++        break
++      fi
++    fi
++  done
++  set -f
++fi
++
++if [ -z "$actualDistributionDir" ]; then
++  verbose "Contents of $TMP_DOWNLOAD_DIR:"
++  verbose "$(ls -la "$TMP_DOWNLOAD_DIR")"
++  die "Could not find Maven distribution directory in extracted archive"
++fi
++
++verbose "Found extracted Maven distribution directory: $actualDistributionDir"
++printf %s\\n "$distributionUrl" >"$TMP_DOWNLOAD_DIR/$actualDistributionDir/mvnw.url"
++mv -- "$TMP_DOWNLOAD_DIR/$actualDistributionDir" "$MAVEN_HOME" || [ -d "$MAVEN_HOME" ] || die "fail to move MAVEN_HOME"
++
++clean || :
++exec_maven "$@"
+diff --git a/services/auth/mvnw.cmd b/services/auth/mvnw.cmd
+new file mode 100644
+index 0000000..2e2dbe0
+--- /dev/null
++++ b/services/auth/mvnw.cmd
+@@ -0,0 +1,189 @@
++<# : batch portion
++@REM ----------------------------------------------------------------------------
++@REM Licensed to the Apache Software Foundation (ASF) under one
++@REM or more contributor license agreements.  See the NOTICE file
++@REM distributed with this work for additional information
++@REM regarding copyright ownership.  The ASF licenses this file
++@REM to you under the Apache License, Version 2.0 (the
++@REM "License"); you may not use this file except in compliance
++@REM with the License.  You may obtain a copy of the License at
++@REM
++@REM    http://www.apache.org/licenses/LICENSE-2.0
++@REM
++@REM Unless required by applicable law or agreed to in writing,
++@REM software distributed under the License is distributed on an
++@REM "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++@REM KIND, either express or implied.  See the License for the
++@REM specific language governing permissions and limitations
++@REM under the License.
++@REM ----------------------------------------------------------------------------
++
++@REM ----------------------------------------------------------------------------
++@REM Apache Maven Wrapper startup batch script, version 3.3.3
++@REM
++@REM Optional ENV vars
++@REM   MVNW_REPOURL - repo url base for downloading maven distribution
++@REM   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
++@REM   MVNW_VERBOSE - true: enable verbose log; others: silence the output
++@REM ----------------------------------------------------------------------------
++
++@IF "%__MVNW_ARG0_NAME__%"=="" (SET __MVNW_ARG0_NAME__=%~nx0)
++@SET __MVNW_CMD__=
++@SET __MVNW_ERROR__=
++@SET __MVNW_PSMODULEP_SAVE=%PSModulePath%
++@SET PSModulePath=
++@FOR /F "usebackq tokens=1* delims==" %%A IN (`powershell -noprofile "& {$scriptDir='%~dp0'; $script='%__MVNW_ARG0_NAME__%'; icm -ScriptBlock ([Scriptblock]::Create((Get-Content -Raw '%~f0'))) -NoNewScope}"`) DO @(
++  IF "%%A"=="MVN_CMD" (set __MVNW_CMD__=%%B) ELSE IF "%%B"=="" (echo %%A) ELSE (echo %%A=%%B)
++)
++@SET PSModulePath=%__MVNW_PSMODULEP_SAVE%
++@SET __MVNW_PSMODULEP_SAVE=
++@SET __MVNW_ARG0_NAME__=
++@SET MVNW_USERNAME=
++@SET MVNW_PASSWORD=
++@IF NOT "%__MVNW_CMD__%"=="" ("%__MVNW_CMD__%" %*)
++@echo Cannot start maven from wrapper >&2 && exit /b 1
++@GOTO :EOF
++: end batch / begin powershell #>
++
++$ErrorActionPreference = "Stop"
++if ($env:MVNW_VERBOSE -eq "true") {
++  $VerbosePreference = "Continue"
++}
++
++# calculate distributionUrl, requires .mvn/wrapper/maven-wrapper.properties
++$distributionUrl = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionUrl
++if (!$distributionUrl) {
++  Write-Error "cannot read distributionUrl property in $scriptDir/.mvn/wrapper/maven-wrapper.properties"
++}
++
++switch -wildcard -casesensitive ( $($distributionUrl -replace '^.*/','') ) {
++  "maven-mvnd-*" {
++    $USE_MVND = $true
++    $distributionUrl = $distributionUrl -replace '-bin\.[^.]*$',"-windows-amd64.zip"
++    $MVN_CMD = "mvnd.cmd"
++    break
++  }
++  default {
++    $USE_MVND = $false
++    $MVN_CMD = $script -replace '^mvnw','mvn'
++    break
++  }
++}
++
++# apply MVNW_REPOURL and calculate MAVEN_HOME
++# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
++if ($env:MVNW_REPOURL) {
++  $MVNW_REPO_PATTERN = if ($USE_MVND -eq $False) { "/org/apache/maven/" } else { "/maven/mvnd/" }
++  $distributionUrl = "$env:MVNW_REPOURL$MVNW_REPO_PATTERN$($distributionUrl -replace "^.*$MVNW_REPO_PATTERN",'')"
++}
++$distributionUrlName = $distributionUrl -replace '^.*/',''
++$distributionUrlNameMain = $distributionUrlName -replace '\.[^.]*$','' -replace '-bin$',''
++
++$MAVEN_M2_PATH = "$HOME/.m2"
++if ($env:MAVEN_USER_HOME) {
++  $MAVEN_M2_PATH = "$env:MAVEN_USER_HOME"
++}
++
++if (-not (Test-Path -Path $MAVEN_M2_PATH)) {
++    New-Item -Path $MAVEN_M2_PATH -ItemType Directory | Out-Null
++}
++
++$MAVEN_WRAPPER_DISTS = $null
++if ((Get-Item $MAVEN_M2_PATH).Target[0] -eq $null) {
++  $MAVEN_WRAPPER_DISTS = "$MAVEN_M2_PATH/wrapper/dists"
++} else {
++  $MAVEN_WRAPPER_DISTS = (Get-Item $MAVEN_M2_PATH).Target[0] + "/wrapper/dists"
++}
++
++$MAVEN_HOME_PARENT = "$MAVEN_WRAPPER_DISTS/$distributionUrlNameMain"
++$MAVEN_HOME_NAME = ([System.Security.Cryptography.SHA256]::Create().ComputeHash([byte[]][char[]]$distributionUrl) | ForEach-Object {$_.ToString("x2")}) -join ''
++$MAVEN_HOME = "$MAVEN_HOME_PARENT/$MAVEN_HOME_NAME"
++
++if (Test-Path -Path "$MAVEN_HOME" -PathType Container) {
++  Write-Verbose "found existing MAVEN_HOME at $MAVEN_HOME"
++  Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
++  exit $?
++}
++
++if (! $distributionUrlNameMain -or ($distributionUrlName -eq $distributionUrlNameMain)) {
++  Write-Error "distributionUrl is not valid, must end with *-bin.zip, but found $distributionUrl"
++}
++
++# prepare tmp dir
++$TMP_DOWNLOAD_DIR_HOLDER = New-TemporaryFile
++$TMP_DOWNLOAD_DIR = New-Item -Itemtype Directory -Path "$TMP_DOWNLOAD_DIR_HOLDER.dir"
++$TMP_DOWNLOAD_DIR_HOLDER.Delete() | Out-Null
++trap {
++  if ($TMP_DOWNLOAD_DIR.Exists) {
++    try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
++    catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
++  }
++}
++
++New-Item -Itemtype Directory -Path "$MAVEN_HOME_PARENT" -Force | Out-Null
++
++# Download and Install Apache Maven
++Write-Verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
++Write-Verbose "Downloading from: $distributionUrl"
++Write-Verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
++
++$webclient = New-Object System.Net.WebClient
++if ($env:MVNW_USERNAME -and $env:MVNW_PASSWORD) {
++  $webclient.Credentials = New-Object System.Net.NetworkCredential($env:MVNW_USERNAME, $env:MVNW_PASSWORD)
++}
++[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
++$webclient.DownloadFile($distributionUrl, "$TMP_DOWNLOAD_DIR/$distributionUrlName") | Out-Null
++
++# If specified, validate the SHA-256 sum of the Maven distribution zip file
++$distributionSha256Sum = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionSha256Sum
++if ($distributionSha256Sum) {
++  if ($USE_MVND) {
++    Write-Error "Checksum validation is not supported for maven-mvnd. `nPlease disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties."
++  }
++  Import-Module $PSHOME\Modules\Microsoft.PowerShell.Utility -Function Get-FileHash
++  if ((Get-FileHash "$TMP_DOWNLOAD_DIR/$distributionUrlName" -Algorithm SHA256).Hash.ToLower() -ne $distributionSha256Sum) {
++    Write-Error "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised. If you updated your Maven version, you need to update the specified distributionSha256Sum property."
++  }
++}
++
++# unzip and move
++Expand-Archive "$TMP_DOWNLOAD_DIR/$distributionUrlName" -DestinationPath "$TMP_DOWNLOAD_DIR" | Out-Null
++
++# Find the actual extracted directory name (handles snapshots where filename != directory name)
++$actualDistributionDir = ""
++
++# First try the expected directory name (for regular distributions)
++$expectedPath = Join-Path "$TMP_DOWNLOAD_DIR" "$distributionUrlNameMain"
++$expectedMvnPath = Join-Path "$expectedPath" "bin/$MVN_CMD"
++if ((Test-Path -Path $expectedPath -PathType Container) -and (Test-Path -Path $expectedMvnPath -PathType Leaf)) {
++  $actualDistributionDir = $distributionUrlNameMain
++}
++
++# If not found, search for any directory with the Maven executable (for snapshots)
++if (!$actualDistributionDir) {
++  Get-ChildItem -Path "$TMP_DOWNLOAD_DIR" -Directory | ForEach-Object {
++    $testPath = Join-Path $_.FullName "bin/$MVN_CMD"
++    if (Test-Path -Path $testPath -PathType Leaf) {
++      $actualDistributionDir = $_.Name
++    }
++  }
++}
++
++if (!$actualDistributionDir) {
++  Write-Error "Could not find Maven distribution directory in extracted archive"
++}
++
++Write-Verbose "Found extracted Maven distribution directory: $actualDistributionDir"
++Rename-Item -Path "$TMP_DOWNLOAD_DIR/$actualDistributionDir" -NewName $MAVEN_HOME_NAME | Out-Null
++try {
++  Move-Item -Path "$TMP_DOWNLOAD_DIR/$MAVEN_HOME_NAME" -Destination $MAVEN_HOME_PARENT | Out-Null
++} catch {
++  if (! (Test-Path -Path "$MAVEN_HOME" -PathType Container)) {
++    Write-Error "fail to move MAVEN_HOME"
++  }
++} finally {
++  try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
++  catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
++}
++
++Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
+diff --git a/services/auth/pom.xml b/services/auth/pom.xml
+new file mode 100644
+index 0000000..6442564
+--- /dev/null
++++ b/services/auth/pom.xml
+@@ -0,0 +1,128 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
++	<modelVersion>4.0.0</modelVersion>
++	<parent>
++		<groupId>org.springframework.boot</groupId>
++		<artifactId>spring-boot-starter-parent</artifactId>
++		<version>3.5.5</version>
++		<relativePath/> <!-- lookup parent from repository -->
++	</parent>
++	<groupId>com.shah</groupId>
++	<artifactId>auth</artifactId>
++	<version>0.0.1-SNAPSHOT</version>
++	<name>auth</name>
++	<description>Authentication Service (JWT login) for Spring Boot</description>
++	<url/>
++	<licenses>
++		<license/>
++	</licenses>
++	<developers>
++		<developer/>
++	</developers>
++	<scm>
++		<connection/>
++		<developerConnection/>
++		<tag/>
++		<url/>
++	</scm>
++	<properties>
++		<java.version>17</java.version>
++		<spring-cloud.version>2025.0.0</spring-cloud.version>
++	</properties>
++	<dependencies>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-data-jpa</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-validation</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-web</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-security</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.springframework.security</groupId>
++			<artifactId>spring-security-oauth2-jose</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.flywaydb</groupId>
++			<artifactId>flyway-core</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.flywaydb</groupId>
++			<artifactId>flyway-database-postgresql</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.springframework.cloud</groupId>
++			<artifactId>spring-cloud-starter-config</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.springframework.cloud</groupId>
++			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
++		</dependency>
++
++		<dependency>
++			<groupId>org.postgresql</groupId>
++			<artifactId>postgresql</artifactId>
++			<scope>runtime</scope>
++		</dependency>
++		<dependency>
++			<groupId>org.projectlombok</groupId>
++			<artifactId>lombok</artifactId>
++			<optional>true</optional>
++		</dependency>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-test</artifactId>
++			<scope>test</scope>
++		</dependency>
++	</dependencies>
++	<dependencyManagement>
++		<dependencies>
++			<dependency>
++				<groupId>org.springframework.cloud</groupId>
++				<artifactId>spring-cloud-dependencies</artifactId>
++				<version>${spring-cloud.version}</version>
++				<type>pom</type>
++				<scope>import</scope>
++			</dependency>
++		</dependencies>
++	</dependencyManagement>
++
++	<build>
++		<plugins>
++			<plugin>
++				<groupId>org.apache.maven.plugins</groupId>
++				<artifactId>maven-compiler-plugin</artifactId>
++				<configuration>
++					<annotationProcessorPaths>
++						<path>
++							<groupId>org.projectlombok</groupId>
++							<artifactId>lombok</artifactId>
++						</path>
++					</annotationProcessorPaths>
++				</configuration>
++			</plugin>
++			<plugin>
++				<groupId>org.springframework.boot</groupId>
++				<artifactId>spring-boot-maven-plugin</artifactId>
++				<configuration>
++					<excludes>
++						<exclude>
++							<groupId>org.projectlombok</groupId>
++							<artifactId>lombok</artifactId>
++						</exclude>
++					</excludes>
++				</configuration>
++			</plugin>
++		</plugins>
++	</build>
++
++</project>
+diff --git a/services/auth/src/main/java/com/shah/ecommerce/AuthApplication.java b/services/auth/src/main/java/com/shah/ecommerce/AuthApplication.java
+new file mode 100644
+index 0000000..eef8d8a
+--- /dev/null
++++ b/services/auth/src/main/java/com/shah/ecommerce/AuthApplication.java
+@@ -0,0 +1,15 @@
++package com.shah.ecommerce;
++
++import org.springframework.boot.SpringApplication;
++import org.springframework.boot.autoconfigure.SpringBootApplication;
++import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
++
++@SpringBootApplication
++@EnableJpaAuditing
++public class AuthApplication {
++
++	public static void main(String[] args) {
++		SpringApplication.run(AuthApplication.class, args);
++	}
++
++}
+diff --git a/services/auth/src/main/java/com/shah/ecommerce/auth/AuthController.java b/services/auth/src/main/java/com/shah/ecommerce/auth/AuthController.java
+new file mode 100644
+index 0000000..67ae7ec
+--- /dev/null
++++ b/services/auth/src/main/java/com/shah/ecommerce/auth/AuthController.java
+@@ -0,0 +1,28 @@
++package com.shah.ecommerce.auth;
++
++import jakarta.validation.Valid;
++import lombok.RequiredArgsConstructor;
++import org.springframework.http.HttpStatus;
++import org.springframework.http.ResponseEntity;
++import org.springframework.web.bind.annotation.PostMapping;
++import org.springframework.web.bind.annotation.RequestBody;
++import org.springframework.web.bind.annotation.RequestMapping;
++import org.springframework.web.bind.annotation.RestController;
++
++@RestController
++@RequestMapping("/api/v1/auth")
++@RequiredArgsConstructor
++public class AuthController {
++
++    private final AuthService service;
++
++    @PostMapping("/login")
++    public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
++        return ResponseEntity.ok(service.login(request));
++    }
++
++    @PostMapping("/register")
++    public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterRequest request) {
++        return ResponseEntity.status(HttpStatus.CREATED).body(service.register(request));
++    }
++}
+diff --git a/services/auth/src/main/java/com/shah/ecommerce/auth/AuthResponse.java b/services/auth/src/main/java/com/shah/ecommerce/auth/AuthResponse.java
+new file mode 100644
+index 0000000..3ebe066
+--- /dev/null
++++ b/services/auth/src/main/java/com/shah/ecommerce/auth/AuthResponse.java
+@@ -0,0 +1,9 @@
++package com.shah.ecommerce.auth;
++
++public record AuthResponse(
++        String accessToken,
++        String tokenType,
++        long expiresIn,
++        String role
++) {
++}
+diff --git a/services/auth/src/main/java/com/shah/ecommerce/auth/AuthService.java b/services/auth/src/main/java/com/shah/ecommerce/auth/AuthService.java
+new file mode 100644
+index 0000000..e5d173d
+--- /dev/null
++++ b/services/auth/src/main/java/com/shah/ecommerce/auth/AuthService.java
+@@ -0,0 +1,66 @@
++package com.shah.ecommerce.auth;
++
++import com.shah.ecommerce.exception.UserAlreadyExistsException;
++import com.shah.ecommerce.security.JwtService;
++import com.shah.ecommerce.user.Role;
++import com.shah.ecommerce.user.User;
++import com.shah.ecommerce.user.UserRepository;
++import lombok.RequiredArgsConstructor;
++import org.springframework.security.authentication.AuthenticationManager;
++import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
++import org.springframework.security.crypto.password.PasswordEncoder;
++import org.springframework.stereotype.Service;
++import org.springframework.transaction.annotation.Transactional;
++
++import java.util.Locale;
++
++@Service
++@RequiredArgsConstructor
++public class AuthService {
++
++    private static final String TOKEN_TYPE = "Bearer";
++
++    private final AuthenticationManager authenticationManager;
++    private final UserRepository userRepository;
++    private final PasswordEncoder passwordEncoder;
++    private final JwtService jwtService;
++
++    public AuthResponse login(LoginRequest request) {
++        var authentication = authenticationManager.authenticate(
++                new UsernamePasswordAuthenticationToken(normalizeEmail(request.email()), request.password())
++        );
++        var user = (User) authentication.getPrincipal();
++        return toAuthResponse(user);
++    }
++
++    @Transactional
++    public AuthResponse register(RegisterRequest request) {
++        var email = normalizeEmail(request.email());
++        if (userRepository.existsByEmail(email)) {
++            throw new UserAlreadyExistsException(String.format("An account already exists with the given email:: %s", email));
++        }
++        var user = userRepository.save(
++                User.builder()
++                        .firstname(request.firstname())
++                        .lastname(request.lastname())
++                        .email(email)
++                        .password(passwordEncoder.encode(request.password()))
++                        .role(Role.USER_ROLE)
++                        .build()
++        );
++        return toAuthResponse(user);
++    }
++
++    private AuthResponse toAuthResponse(User user) {
++        return new AuthResponse(
++                jwtService.generateToken(user),
++                TOKEN_TYPE,
++                jwtService.getExpirationInSeconds(),
++                user.getRole().getAuthority()
++        );
++    }
++
++    private String normalizeEmail(String email) {
++        return email.trim().toLowerCase(Locale.ROOT);
++    }
++}
+diff --git a/services/auth/src/main/java/com/shah/ecommerce/auth/LoginRequest.java b/services/auth/src/main/java/com/shah/ecommerce/auth/LoginRequest.java
+new file mode 100644
+index 0000000..15c0aa8
+--- /dev/null
++++ b/services/auth/src/main/java/com/shah/ecommerce/auth/LoginRequest.java
+@@ -0,0 +1,13 @@
++package com.shah.ecommerce.auth;
++
++import jakarta.validation.constraints.Email;
++import jakarta.validation.constraints.NotBlank;
++
++public record LoginRequest(
++        @NotBlank(message = "Email is required")
++        @Email(message = "Please enter a valid email")
++        String email,
++        @NotBlank(message = "Password is required")
++        String password
++) {
++}
+diff --git a/services/auth/src/main/java/com/shah/ecommerce/auth/RegisterRequest.java b/services/auth/src/main/java/com/shah/ecommerce/auth/RegisterRequest.java
+new file mode 100644
+index 0000000..715d618
+--- /dev/null
++++ b/services/auth/src/main/java/com/shah/ecommerce/auth/RegisterRequest.java
+@@ -0,0 +1,19 @@
++package com.shah.ecommerce.auth;
++
++import jakarta.validation.constraints.Email;
++import jakarta.validation.constraints.NotBlank;
++import jakarta.validation.constraints.Size;
++
++public record RegisterRequest(
++        @NotBlank(message = "Firstname is required")
++        String firstname,
++        @NotBlank(message = "Lastname is required")
++        String lastname,
++        @NotBlank(message = "Email is required")
++        @Email(message = "Please enter a valid email")
++        String email,
++        @NotBlank(message = "Password is required")
++        @Size(min = 8, message = "Password should be at least 8 characters long")
++        String password
++) {
++}
+diff --git a/services/auth/src/main/java/com/shah/ecommerce/config/DefaultAdminInitializer.java b/services/auth/src/main/java/com/shah/ecommerce/config/DefaultAdminInitializer.java
+new file mode 100644
+index 0000000..dcc3924
+--- /dev/null
++++ b/services/auth/src/main/java/com/shah/ecommerce/config/DefaultAdminInitializer.java
+@@ -0,0 +1,45 @@
++package com.shah.ecommerce.config;
++
++import com.shah.ecommerce.user.Role;
++import com.shah.ecommerce.user.User;
++import com.shah.ecommerce.user.UserRepository;
++import lombok.RequiredArgsConstructor;
++import lombok.extern.slf4j.Slf4j;
++import org.springframework.beans.factory.annotation.Value;
++import org.springframework.boot.CommandLineRunner;
++import org.springframework.security.crypto.password.PasswordEncoder;
++import org.springframework.stereotype.Component;
++
++import java.util.Locale;
++
++@Component
++@RequiredArgsConstructor
++@Slf4j
++public class DefaultAdminInitializer implements CommandLineRunner {
++
++    private final UserRepository userRepository;
++    private final PasswordEncoder passwordEncoder;
++
++    @Value("${application.security.default-admin.email}")
++    private String adminEmail;
++    @Value("${application.security.default-admin.password}")
++    private String adminPassword;
++
++    @Override
++    public void run(String... args) {
++        var email = adminEmail.trim().toLowerCase(Locale.ROOT);
++        if (userRepository.existsByEmail(email)) {
++            return;
++        }
++        userRepository.save(
++                User.builder()
++                        .firstname("Admin")
++                        .lastname("User")
++                        .email(email)
++                        .password(passwordEncoder.encode(adminPassword))
++                        .role(Role.ADMIN_ROLE)
++                        .build()
++        );
++        log.info("Default admin account created with email <{}>", email);
++    }
++}
+diff --git a/services/auth/src/main/java/com/shah/ecommerce/exception/UserAlreadyExistsException.java b/services/auth/src/main/java/com/shah/ecommerce/exception/UserAlreadyExistsException.java
+new file mode 100644
+index 0000000..e85a690
+--- /dev/null
++++ b/services/auth/src/main/java/com/shah/ecommerce/exception/UserAlreadyExistsException.java
+@@ -0,0 +1,10 @@
++package com.shah.ecommerce.exception;
++
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++
++@EqualsAndHashCode(callSuper = true)
++@Data
++public class UserAlreadyExistsException extends RuntimeException {
++    private final String msg;
++}
+diff --git a/services/auth/src/main/java/com/shah/ecommerce/handler/ErrorResponse.java b/services/auth/src/main/java/com/shah/ecommerce/handler/ErrorResponse.java
+new file mode 100644
+index 0000000..941c2af
+--- /dev/null
++++ b/services/auth/src/main/java/com/shah/ecommerce/handler/ErrorResponse.java
+@@ -0,0 +1,8 @@
++package com.shah.ecommerce.handler;
++
++import java.util.Map;
++
++public record ErrorResponse(
++        Map<String, String> errors
++) {
++}
+diff --git a/services/auth/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java b/services/auth/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java
+new file mode 100644
+index 0000000..10ca8a6
+--- /dev/null
++++ b/services/auth/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java
+@@ -0,0 +1,57 @@
++package com.shah.ecommerce.handler;
++
++import com.shah.ecommerce.exception.UserAlreadyExistsException;
++import lombok.extern.slf4j.Slf4j;
++import org.springframework.http.HttpStatus;
++import org.springframework.http.ResponseEntity;
++import org.springframework.http.converter.HttpMessageNotReadableException;
++import org.springframework.security.core.AuthenticationException;
++import org.springframework.validation.FieldError;
++import org.springframework.web.bind.MethodArgumentNotValidException;
++import org.springframework.web.bind.annotation.ExceptionHandler;
++import org.springframework.web.bind.annotation.RestControllerAdvice;
++
++import java.util.HashMap;
++
++@RestControllerAdvice
++@Slf4j
++public class GLobalExceptionHandler {
++
++    @ExceptionHandler(AuthenticationException.class)
++    public ResponseEntity<String> handle(AuthenticationException exp) {
++        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
++    }
++
++    @ExceptionHandler(UserAlreadyExistsException.class)
++    public ResponseEntity<String> handle(UserAlreadyExistsException exp) {
++        return ResponseEntity.status(HttpStatus.CONFLICT).body(exp.getMsg());
++    }
++
++    @ExceptionHandler(HttpMessageNotReadableException.class)
++    public ResponseEntity<String> handle(HttpMessageNotReadableException exp) {
++        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The request body is missing or malformed");
++    }
++
++    @ExceptionHandler(MethodArgumentNotValidException.class)
++    public ResponseEntity<ErrorResponse> handle(MethodArgumentNotValidException exp) {
++        var errors = new HashMap<String, String>();
++        exp.getBindingResult().getAllErrors().forEach(error -> {
++            String fieldName = ((FieldError) error).getField();
++            String msg = error.getDefaultMessage();
++            errors.put(fieldName, msg);
++        });
++
++        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(errors));
++    }
++
++    @ExceptionHandler(Exception.class)
++    public ResponseEntity<String> handle(Exception exp) {
++        if (exp instanceof org.springframework.web.ErrorResponse errorResponse) {
++            return ResponseEntity.status(errorResponse.getStatusCode()).body(errorResponse.getBody().getDetail());
++        }
++        log.error("Unexpected error while processing the request", exp);
++        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
++                .body("Something went wrong while processing your request. Please try again later");
++    }
++
++}
+diff --git a/services/auth/src/main/java/com/shah/ecommerce/security/JwtService.java b/services/auth/src/main/java/com/shah/ecommerce/security/JwtService.java
+new file mode 100644
+index 0000000..a1ad8b8
+--- /dev/null
++++ b/services/auth/src/main/java/com/shah/ecommerce/security/JwtService.java
+@@ -0,0 +1,54 @@
++package com.shah.ecommerce.security;
++
++import com.nimbusds.jose.jwk.source.ImmutableSecret;
++import com.shah.ecommerce.user.User;
++import org.springframework.beans.factory.annotation.Value;
++import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
++import org.springframework.security.oauth2.jwt.JwsHeader;
++import org.springframework.security.oauth2.jwt.JwtClaimsSet;
++import org.springframework.security.oauth2.jwt.JwtEncoder;
++import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
++import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
++import org.springframework.stereotype.Service;
++
++import javax.crypto.spec.SecretKeySpec;
++import java.time.Instant;
++import java.util.Base64;
++import java.util.List;
++
++@Service
++public class JwtService {
++
++    private static final String ISSUER = "auth-service";
++
++    private final JwtEncoder jwtEncoder;
++    private final long expiration;
++
++    public JwtService(
++            @Value("${application.security.jwt.secret-key}") String secretKey,
++            @Value("${application.security.jwt.expiration}") long expiration
++    ) {
++        var key = new SecretKeySpec(Base64.getDecoder().decode(secretKey), "HmacSHA256");
++        this.jwtEncoder = new NimbusJwtEncoder(new ImmutableSecret<>(key));
++        this.expiration = expiration;
++    }
++
++    public String generateToken(User user) {
++        var issuedAt = Instant.now();
++        var claims = JwtClaimsSet.builder()
++                .issuer(ISSUER)
++                .subject(user.getEmail())
++                .issuedAt(issuedAt)
++                .expiresAt(issuedAt.plusMillis(expiration))
++                .claim("userId", user.getId())
++                .claim("name", String.format("%s %s", user.getFirstname(), user.getLastname()).trim())
++                .claim("roles", List.of(user.getRole().getAuthority()))
++                .build();
++        var header = JwsHeader.with(MacAlgorithm.HS256).build();
++        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
++    }
++
++    public long getExpirationInSeconds() {
++        return expiration / 1000;
++    }
++}
+diff --git a/services/auth/src/main/java/com/shah/ecommerce/security/SecurityConfig.java b/services/auth/src/main/java/com/shah/ecommerce/security/SecurityConfig.java
+new file mode 100644
+index 0000000..1b80b82
+--- /dev/null
++++ b/services/auth/src/main/java/com/shah/ecommerce/security/SecurityConfig.java
+@@ -0,0 +1,58 @@
++package com.shah.ecommerce.security;
++
++import com.shah.ecommerce.user.UserRepository;
++import lombok.RequiredArgsConstructor;
++import org.springframework.context.annotation.Bean;
++import org.springframework.context.annotation.Configuration;
++import org.springframework.http.HttpMethod;
++import org.springframework.security.authentication.AuthenticationManager;
++import org.springframework.security.authentication.ProviderManager;
++import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
++import org.springframework.security.config.annotation.web.builders.HttpSecurity;
++import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
++import org.springframework.security.config.http.SessionCreationPolicy;
++import org.springframework.security.core.userdetails.UserDetailsService;
++import org.springframework.security.core.userdetails.UsernameNotFoundException;
++import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
++import org.springframework.security.crypto.password.PasswordEncoder;
++import org.springframework.security.web.SecurityFilterChain;
++
++@Configuration
++@RequiredArgsConstructor
++public class SecurityConfig {
++
++    private final UserRepository userRepository;
++
++    @Bean
++    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
++        return http
++                .csrf(AbstractHttpConfigurer::disable)
++                .httpBasic(AbstractHttpConfigurer::disable)
++                .formLogin(AbstractHttpConfigurer::disable)
++                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
++                .authorizeHttpRequests(auth -> auth
++                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/register").permitAll()
++                        .requestMatchers("/error").permitAll()
++                        .anyRequest().denyAll()
++                )
++                .build();
++    }
++
++    @Bean
++    public UserDetailsService userDetailsService() {
++        return email -> userRepository.findByEmail(email)
++                .orElseThrow(() -> new UsernameNotFoundException(String.format("No user found with the given email:: %s", email)));
++    }
++
++    @Bean
++    public PasswordEncoder passwordEncoder() {
++        return new BCryptPasswordEncoder();
++    }
++
++    @Bean
++    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
++        var provider = new DaoAuthenticationProvider(userDetailsService);
++        provider.setPasswordEncoder(passwordEncoder);
++        return new ProviderManager(provider);
++    }
++}
+diff --git a/services/auth/src/main/java/com/shah/ecommerce/user/Role.java b/services/auth/src/main/java/com/shah/ecommerce/user/Role.java
+new file mode 100644
+index 0000000..62f894d
+--- /dev/null
++++ b/services/auth/src/main/java/com/shah/ecommerce/user/Role.java
+@@ -0,0 +1,13 @@
++package com.shah.ecommerce.user;
++
++import lombok.Getter;
++import lombok.RequiredArgsConstructor;
++
++@Getter
++@RequiredArgsConstructor
++public enum Role {
++    ADMIN_ROLE("admin_role"),
++    USER_ROLE("user_role");
++
++    private final String authority;
++}
+diff --git a/services/auth/src/main/java/com/shah/ecommerce/user/User.java b/services/auth/src/main/java/com/shah/ecommerce/user/User.java
+new file mode 100644
+index 0000000..45ff764
+--- /dev/null
++++ b/services/auth/src/main/java/com/shah/ecommerce/user/User.java
+@@ -0,0 +1,56 @@
++package com.shah.ecommerce.user;
++
++import jakarta.persistence.*;
++import lombok.*;
++import org.springframework.data.annotation.CreatedDate;
++import org.springframework.data.annotation.LastModifiedDate;
++import org.springframework.data.jpa.domain.support.AuditingEntityListener;
++import org.springframework.security.core.GrantedAuthority;
++import org.springframework.security.core.authority.SimpleGrantedAuthority;
++import org.springframework.security.core.userdetails.UserDetails;
++
++import java.time.LocalDateTime;
++import java.util.Collection;
++import java.util.List;
++
++import static jakarta.persistence.EnumType.STRING;
++
++@AllArgsConstructor
++@NoArgsConstructor
++@Getter
++@Setter
++@Builder
++@Entity
++@EntityListeners(AuditingEntityListener.class)
++@Table(name = "app_user")
++public class User implements UserDetails {
++
++    @Id
++    @GeneratedValue
++    private Integer id;
++    private String firstname;
++    private String lastname;
++    @Column(unique = true, nullable = false)
++    private String email;
++    @Column(nullable = false)
++    private String password;
++    @Enumerated(STRING)
++    @Column(nullable = false)
++    private Role role;
++    @CreatedDate
++    @Column(updatable = false, nullable = false)
++    private LocalDateTime createdDate;
++    @LastModifiedDate
++    @Column(insertable = false)
++    private LocalDateTime lastModifiedDate;
++
++    @Override
++    public Collection<? extends GrantedAuthority> getAuthorities() {
++        return List.of(new SimpleGrantedAuthority(role.getAuthority()));
++    }
++
++    @Override
++    public String getUsername() {
++        return email;
++    }
++}
+diff --git a/services/auth/src/main/java/com/shah/ecommerce/user/UserRepository.java b/services/auth/src/main/java/com/shah/ecommerce/user/UserRepository.java
+new file mode 100644
+index 0000000..ade74d9
+--- /dev/null
++++ b/services/auth/src/main/java/com/shah/ecommerce/user/UserRepository.java
+@@ -0,0 +1,11 @@
++package com.shah.ecommerce.user;
++
++import org.springframework.data.jpa.repository.JpaRepository;
++
++import java.util.Optional;
++
++public interface UserRepository extends JpaRepository<User, Integer> {
++    Optional<User> findByEmail(String email);
++
++    boolean existsByEmail(String email);
++}
+diff --git a/services/auth/src/main/resources/application.yml b/services/auth/src/main/resources/application.yml
+new file mode 100644
+index 0000000..989bc73
+--- /dev/null
++++ b/services/auth/src/main/resources/application.yml
+@@ -0,0 +1,5 @@
++spring:
++  config:
++    import: optional:configserver:http://localhost:8888
++  application:
++    name: auth-service
+diff --git a/services/auth/src/main/resources/db/migration/V1__init_database.sql b/services/auth/src/main/resources/db/migration/V1__init_database.sql
+new file mode 100644
+index 0000000..3341ccd
+--- /dev/null
++++ b/services/auth/src/main/resources/db/migration/V1__init_database.sql
+@@ -0,0 +1,14 @@
++create table if not exists app_user
++(
++    id                 integer      not null primary key,
++    firstname          varchar(255),
++    lastname           varchar(255),
++    email              varchar(255) not null
++        constraint uk_app_user_email unique,
++    password           varchar(255) not null,
++    role               varchar(255) not null,
++    created_date       timestamp(6) not null,
++    last_modified_date timestamp(6)
++);
++
++create sequence if not exists app_user_seq increment by 50;
+diff --git a/services/auth/src/test/java/com/shah/ecommerce/AuthApplicationTests.java b/services/auth/src/test/java/com/shah/ecommerce/AuthApplicationTests.java
+new file mode 100644
+index 0000000..93e625d
+--- /dev/null
++++ b/services/auth/src/test/java/com/shah/ecommerce/AuthApplicationTests.java
+@@ -0,0 +1,13 @@
++package com.shah.ecommerce;
++
++import org.junit.jupiter.api.Test;
++import org.springframework.boot.test.context.SpringBootTest;
++
++@SpringBootTest
++class AuthApplicationTests {
++
++	@Test
++	void contextLoads() {
++	}
++
++}
+diff --git a/services/auth/src/test/java/com/shah/ecommerce/security/JwtServiceTests.java b/services/auth/src/test/java/com/shah/ecommerce/security/JwtServiceTests.java
+new file mode 100644
+index 0000000..aeace90
+--- /dev/null
++++ b/services/auth/src/test/java/com/shah/ecommerce/security/JwtServiceTests.java
+@@ -0,0 +1,39 @@
++package com.shah.ecommerce.security;
++
++import com.shah.ecommerce.user.Role;
++import com.shah.ecommerce.user.User;
++import org.junit.jupiter.api.Test;
++import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
++import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
++
++import javax.crypto.spec.SecretKeySpec;
++import java.util.Base64;
++import java.util.List;
++
++import static org.assertj.core.api.Assertions.assertThat;
++
++class JwtServiceTests {
++
++    private static final String SECRET_KEY = "+rplLsk+ZtNlLp+S2M7zrTu2HWVZQ0miRXGW6BvvfhQ9mOK4FtQfkkh35/Ssgz5l";
++
++    private final JwtService jwtService = new JwtService(SECRET_KEY, 3_600_000);
++
++    @Test
++    void shouldGenerateHs256TokenWithRoleClaim() {
++        var user = User.builder()
++                .id(1)
++                .firstname("John")
++                .lastname("Doe")
++                .email("john@doe.com")
++                .role(Role.USER_ROLE)
++                .build();
++
++        var token = jwtService.generateToken(user);
++
++        var key = new SecretKeySpec(Base64.getDecoder().decode(SECRET_KEY), "HmacSHA256");
++        var jwt = NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build().decode(token);
++        assertThat(jwt.getSubject()).isEqualTo("john@doe.com");
++        assertThat(jwt.getClaimAsStringList("roles")).isEqualTo(List.of("user_role"));
++        assertThat(jwtService.getExpirationInSeconds()).isEqualTo(3600);
++    }
++}
+diff --git a/services/config-server/src/main/resources/configurations/application.yml b/services/config-server/src/main/resources/configurations/application.yml
+index 03ac1d4..761d83c 100644
+--- a/services/config-server/src/main/resources/configurations/application.yml
++++ b/services/config-server/src/main/resources/configurations/application.yml
+@@ -9,3 +9,9 @@ spring:
+   cloud:
+     config:
+       override-system-properties: false
++
++application:
++  security:
++    jwt:
++      secret-key: ${JWT_SECRET_KEY:+rplLsk+ZtNlLp+S2M7zrTu2HWVZQ0miRXGW6BvvfhQ9mOK4FtQfkkh35/Ssgz5l}
++      expiration: 86400000
+diff --git a/services/config-server/src/main/resources/configurations/auth-service.yml b/services/config-server/src/main/resources/configurations/auth-service.yml
+new file mode 100644
+index 0000000..da3e039
+--- /dev/null
++++ b/services/config-server/src/main/resources/configurations/auth-service.yml
+@@ -0,0 +1,26 @@
++spring:
++  datasource:
++    url: jdbc:postgresql://localhost:5432/auth
++    username: shah
++    password: shah
++    driver-class-name: org.postgresql.Driver
++  jpa:
++    hibernate:
++      ddl-auto: validate
++    database: postgresql
++    database-platform: org.hibernate.dialect.PostgreSQLDialect
++  flyway:
++    baseline-on-migrate: true
++    enabled: true
++    baseline-description: "init"
++    baseline-version: 0
++    user: ${spring.datasource.username}
++    password: ${spring.datasource.password}
++server:
++  port: 8030
++
++application:
++  security:
++    default-admin:
++      email: ${DEFAULT_ADMIN_EMAIL:admin@ecommerce.com}
++      password: ${DEFAULT_ADMIN_PASSWORD:Admin@123}
+diff --git a/services/config-server/src/main/resources/configurations/gateway-service.yml b/services/config-server/src/main/resources/configurations/gateway-service.yml
+index eed479d..b8700a5 100644
+--- a/services/config-server/src/main/resources/configurations/gateway-service.yml
++++ b/services/config-server/src/main/resources/configurations/gateway-service.yml
+@@ -6,6 +6,10 @@ spring:
+           enabled: true
+           lower-case-service-id: true
+       routes:
++        - id: auth-service
++          uri: lb://auth-service
++          predicates:
++            - Path=/api/v1/auth/**
+         - id: customer-service
+           uri: lb://customer-service
+           predicates:
+diff --git a/services/config-server/src/main/resources/configurations/order-service.yml b/services/config-server/src/main/resources/configurations/order-service.yml
+index 34d1297..6577466 100644
+--- a/services/config-server/src/main/resources/configurations/order-service.yml
++++ b/services/config-server/src/main/resources/configurations/order-service.yml
+@@ -9,6 +9,13 @@ spring:
+       ddl-auto: validate
+     database: postgresql
+     database-platform: org.hibernate.dialect.PostgreSQLDialect
++  flyway:
++    baseline-on-migrate: true
++    enabled: true
++    baseline-description: "init"
++    baseline-version: 0
++    user: ${spring.datasource.username}
++    password: ${spring.datasource.password}
+   kafka:
+     producer:
+       bootstrap-servers: localhost:9092
+diff --git a/services/customer/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java b/services/customer/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java
+index 78a4a45..61d6fb0 100644
+--- a/services/customer/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java
++++ b/services/customer/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java
+@@ -1,6 +1,7 @@
+ package com.shah.ecommerce.handler;
+ 
+ import com.shah.ecommerce.exception.CustomerNotFoundException;
++import lombok.extern.slf4j.Slf4j;
+ import org.springframework.http.HttpStatus;
+ import org.springframework.http.ResponseEntity;
+ import org.springframework.validation.FieldError;
+@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
+ import java.util.HashMap;
+ 
+ @RestControllerAdvice
++@Slf4j
+ public class GLobalExceptionHandler {
+ 
+     @ExceptionHandler(CustomerNotFoundException.class)
+@@ -31,4 +33,14 @@ public class GLobalExceptionHandler {
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(errors));
+     }
+ 
++    @ExceptionHandler(Exception.class)
++    public ResponseEntity<String> handle(Exception exp){
++        if (exp instanceof org.springframework.web.ErrorResponse errorResponse){
++            return ResponseEntity.status(errorResponse.getStatusCode()).body(errorResponse.getBody().getDetail());
++        }
++        log.error("Unexpected error while processing the request", exp);
++        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
++                .body("Something went wrong while processing your request. Please try again later");
++    }
++
+ }
+diff --git a/services/gateway/pom.xml b/services/gateway/pom.xml
+index 01a4696..b5e23d4 100644
+--- a/services/gateway/pom.xml
++++ b/services/gateway/pom.xml
+@@ -43,6 +43,14 @@
+ 			<groupId>org.springframework.cloud</groupId>
+ 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+ 		</dependency>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-security</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
++		</dependency>
+ 
+ 		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
+diff --git a/services/gateway/src/main/java/com/shah/gateway/handler/ErrorResponse.java b/services/gateway/src/main/java/com/shah/gateway/handler/ErrorResponse.java
+new file mode 100644
+index 0000000..b5be45f
+--- /dev/null
++++ b/services/gateway/src/main/java/com/shah/gateway/handler/ErrorResponse.java
+@@ -0,0 +1,12 @@
++package com.shah.gateway.handler;
++
++import java.time.LocalDateTime;
++
++public record ErrorResponse(
++        LocalDateTime timestamp,
++        int status,
++        String error,
++        String message,
++        String path
++) {
++}
+diff --git a/services/gateway/src/main/java/com/shah/gateway/handler/ErrorResponseWriter.java b/services/gateway/src/main/java/com/shah/gateway/handler/ErrorResponseWriter.java
+new file mode 100644
+index 0000000..47c815e
+--- /dev/null
++++ b/services/gateway/src/main/java/com/shah/gateway/handler/ErrorResponseWriter.java
+@@ -0,0 +1,48 @@
++package com.shah.gateway.handler;
++
++import com.fasterxml.jackson.core.JsonProcessingException;
++import com.fasterxml.jackson.databind.ObjectMapper;
++import org.springframework.http.HttpStatus;
++import org.springframework.http.MediaType;
++import org.springframework.stereotype.Component;
++import org.springframework.web.server.ServerWebExchange;
++import reactor.core.publisher.Mono;
++
++import java.nio.charset.StandardCharsets;
++import java.time.LocalDateTime;
++
++@Component
++public class ErrorResponseWriter {
++
++    private final ObjectMapper objectMapper;
++
++    public ErrorResponseWriter(ObjectMapper objectMapper) {
++        this.objectMapper = objectMapper;
++    }
++
++    public Mono<Void> write(ServerWebExchange exchange, HttpStatus status, String message) {
++        var response = exchange.getResponse();
++        if (response.isCommitted()) {
++            return Mono.empty();
++        }
++        var body = new ErrorResponse(
++                LocalDateTime.now(),
++                status.value(),
++                status.getReasonPhrase(),
++                message,
++                exchange.getRequest().getPath().value()
++        );
++        response.setStatusCode(status);
++        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
++        var buffer = response.bufferFactory().wrap(toBytes(body));
++        return response.writeWith(Mono.just(buffer));
++    }
++
++    private byte[] toBytes(ErrorResponse body) {
++        try {
++            return objectMapper.writeValueAsBytes(body);
++        } catch (JsonProcessingException e) {
++            return body.message().getBytes(StandardCharsets.UTF_8);
++        }
++    }
++}
+diff --git a/services/gateway/src/main/java/com/shah/gateway/handler/GatewayExceptionHandler.java b/services/gateway/src/main/java/com/shah/gateway/handler/GatewayExceptionHandler.java
+new file mode 100644
+index 0000000..f4643f4
+--- /dev/null
++++ b/services/gateway/src/main/java/com/shah/gateway/handler/GatewayExceptionHandler.java
+@@ -0,0 +1,107 @@
++package com.shah.gateway.handler;
++
++import io.netty.channel.ConnectTimeoutException;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
++import org.springframework.cloud.gateway.route.Route;
++import org.springframework.cloud.gateway.support.NotFoundException;
++import org.springframework.core.annotation.Order;
++import org.springframework.http.HttpStatus;
++import org.springframework.stereotype.Component;
++import org.springframework.web.server.ResponseStatusException;
++import org.springframework.web.server.ServerWebExchange;
++import reactor.core.publisher.Mono;
++
++import java.net.ConnectException;
++import java.net.UnknownHostException;
++import java.util.concurrent.TimeoutException;
++
++import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR;
++
++@Component
++@Order(-2)
++public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
++
++    private static final Logger log = LoggerFactory.getLogger(GatewayExceptionHandler.class);
++
++    private final ErrorResponseWriter errorResponseWriter;
++
++    public GatewayExceptionHandler(ErrorResponseWriter errorResponseWriter) {
++        this.errorResponseWriter = errorResponseWriter;
++    }
++
++    @Override
++    public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
++        var serviceName = resolveServiceName(exchange);
++
++        if (ex instanceof NotFoundException || isConnectionFailure(ex)) {
++            log.warn("{} is unavailable: {}", serviceName, ex.getMessage());
++            return errorResponseWriter.write(exchange, HttpStatus.SERVICE_UNAVAILABLE,
++                    String.format("%s is currently unavailable. Please try again later", serviceName));
++        }
++
++        if (isTimeout(ex)) {
++            log.warn("{} timed out: {}", serviceName, ex.getMessage());
++            return errorResponseWriter.write(exchange, HttpStatus.GATEWAY_TIMEOUT,
++                    String.format("%s took too long to respond. Please try again later", serviceName));
++        }
++
++        if (ex instanceof ResponseStatusException responseStatusException) {
++            var status = HttpStatus.resolve(responseStatusException.getStatusCode().value());
++            if (status != null && status.is4xxClientError()) {
++                return errorResponseWriter.write(exchange, status, clientErrorMessage(exchange, status));
++            }
++        }
++
++        log.error("Unexpected error while routing request to {}", serviceName, ex);
++        return errorResponseWriter.write(exchange, HttpStatus.INTERNAL_SERVER_ERROR,
++                "Something went wrong while processing your request. Please try again later");
++    }
++
++    private String clientErrorMessage(ServerWebExchange exchange, HttpStatus status) {
++        var request = exchange.getRequest();
++        return switch (status) {
++            case NOT_FOUND -> String.format("The requested resource %s was not found", request.getPath().value());
++            case METHOD_NOT_ALLOWED -> String.format("The %s method is not supported for %s", request.getMethod(), request.getPath().value());
++            default -> String.format("The request could not be processed: %s", status.getReasonPhrase());
++        };
++    }
++
++    private boolean isConnectionFailure(Throwable ex) {
++        var cause = ex;
++        while (cause != null) {
++            if (cause instanceof ConnectException
++                    || cause instanceof ConnectTimeoutException
++                    || cause instanceof UnknownHostException) {
++                return true;
++            }
++            cause = cause.getCause();
++        }
++        return false;
++    }
++
++    private boolean isTimeout(Throwable ex) {
++        if (ex instanceof ResponseStatusException responseStatusException
++                && responseStatusException.getStatusCode().value() == HttpStatus.GATEWAY_TIMEOUT.value()) {
++            return true;
++        }
++        var cause = ex;
++        while (cause != null) {
++            if (cause instanceof TimeoutException) {
++                return true;
++            }
++            cause = cause.getCause();
++        }
++        return false;
++    }
++
++    private String resolveServiceName(ServerWebExchange exchange) {
++        Route route = exchange.getAttribute(GATEWAY_ROUTE_ATTR);
++        if (route == null || route.getUri().getHost() == null) {
++            return "The requested service";
++        }
++        var name = route.getUri().getHost().replace("-", " ");
++        return Character.toUpperCase(name.charAt(0)) + name.substring(1);
++    }
++}
+diff --git a/services/gateway/src/main/java/com/shah/gateway/security/JwtAccessDeniedHandler.java b/services/gateway/src/main/java/com/shah/gateway/security/JwtAccessDeniedHandler.java
+new file mode 100644
+index 0000000..a8f2155
+--- /dev/null
++++ b/services/gateway/src/main/java/com/shah/gateway/security/JwtAccessDeniedHandler.java
+@@ -0,0 +1,29 @@
++package com.shah.gateway.security;
++
++import com.shah.gateway.handler.ErrorResponseWriter;
++import org.springframework.http.HttpStatus;
++import org.springframework.security.access.AccessDeniedException;
++import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
++import org.springframework.stereotype.Component;
++import org.springframework.web.server.ServerWebExchange;
++import reactor.core.publisher.Mono;
++
++@Component
++public class JwtAccessDeniedHandler implements ServerAccessDeniedHandler {
++
++    private final ErrorResponseWriter errorResponseWriter;
++
++    public JwtAccessDeniedHandler(ErrorResponseWriter errorResponseWriter) {
++        this.errorResponseWriter = errorResponseWriter;
++    }
++
++    @Override
++    public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException denied) {
++        var request = exchange.getRequest();
++        return errorResponseWriter.write(exchange, HttpStatus.FORBIDDEN, String.format(
++                "You don't have permission to access %s %s",
++                request.getMethod(),
++                request.getPath().value()
++        ));
++    }
++}
+diff --git a/services/gateway/src/main/java/com/shah/gateway/security/JwtAuthenticationEntryPoint.java b/services/gateway/src/main/java/com/shah/gateway/security/JwtAuthenticationEntryPoint.java
+new file mode 100644
+index 0000000..385e540
+--- /dev/null
++++ b/services/gateway/src/main/java/com/shah/gateway/security/JwtAuthenticationEntryPoint.java
+@@ -0,0 +1,41 @@
++package com.shah.gateway.security;
++
++import com.shah.gateway.handler.ErrorResponseWriter;
++import org.springframework.http.HttpHeaders;
++import org.springframework.http.HttpStatus;
++import org.springframework.security.core.AuthenticationException;
++import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
++import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
++import org.springframework.stereotype.Component;
++import org.springframework.web.server.ServerWebExchange;
++import reactor.core.publisher.Mono;
++
++@Component
++public class JwtAuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
++
++    private final ErrorResponseWriter errorResponseWriter;
++
++    public JwtAuthenticationEntryPoint(ErrorResponseWriter errorResponseWriter) {
++        this.errorResponseWriter = errorResponseWriter;
++    }
++
++    @Override
++    public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
++        exchange.getResponse().getHeaders().set(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
++        return errorResponseWriter.write(exchange, HttpStatus.UNAUTHORIZED, resolveMessage(ex));
++    }
++
++    private String resolveMessage(AuthenticationException ex) {
++        if (!(ex instanceof OAuth2AuthenticationException)) {
++            return "You need to login to access this resource. Please provide a valid token in the 'Authorization: Bearer <token>' header";
++        }
++        var message = ex.getMessage() == null ? "" : ex.getMessage().toLowerCase();
++        if (message.contains("expired")) {
++            return "Your session has expired. Please login again to get a new token";
++        }
++        if (message.contains("malformed")) {
++            return "The Authorization header is malformed. Expected format: 'Authorization: Bearer <token>'";
++        }
++        return "The provided token is invalid. Please login again to get a new token";
++    }
++}
+diff --git a/services/gateway/src/main/java/com/shah/gateway/security/Roles.java b/services/gateway/src/main/java/com/shah/gateway/security/Roles.java
+new file mode 100644
+index 0000000..599769e
+--- /dev/null
++++ b/services/gateway/src/main/java/com/shah/gateway/security/Roles.java
+@@ -0,0 +1,11 @@
++package com.shah.gateway.security;
++
++public final class Roles {
++
++    public static final String ADMIN_ROLE = "admin_role";
++    public static final String USER_ROLE = "user_role";
++    public static final String SERVICE_ROLE = "service_role";
++
++    private Roles() {
++    }
++}
+diff --git a/services/gateway/src/main/java/com/shah/gateway/security/SecurityConfig.java b/services/gateway/src/main/java/com/shah/gateway/security/SecurityConfig.java
+new file mode 100644
+index 0000000..7a1bf2c
+--- /dev/null
++++ b/services/gateway/src/main/java/com/shah/gateway/security/SecurityConfig.java
+@@ -0,0 +1,89 @@
++package com.shah.gateway.security;
++
++import org.springframework.beans.factory.annotation.Value;
++import org.springframework.context.annotation.Bean;
++import org.springframework.context.annotation.Configuration;
++import org.springframework.http.HttpMethod;
++import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
++import org.springframework.security.config.web.server.ServerHttpSecurity;
++import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
++import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
++import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
++import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
++import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
++import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
++import org.springframework.security.web.server.SecurityWebFilterChain;
++import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
++
++import javax.crypto.spec.SecretKeySpec;
++import java.util.Base64;
++
++import static com.shah.gateway.security.Roles.ADMIN_ROLE;
++import static com.shah.gateway.security.Roles.SERVICE_ROLE;
++import static com.shah.gateway.security.Roles.USER_ROLE;
++
++@Configuration
++@EnableWebFluxSecurity
++public class SecurityConfig {
++
++    private static final String ROLES_CLAIM = "roles";
++
++    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
++    private final JwtAccessDeniedHandler accessDeniedHandler;
++
++    public SecurityConfig(JwtAuthenticationEntryPoint authenticationEntryPoint, JwtAccessDeniedHandler accessDeniedHandler) {
++        this.authenticationEntryPoint = authenticationEntryPoint;
++        this.accessDeniedHandler = accessDeniedHandler;
++    }
++
++    @Bean
++    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
++        return http
++                .csrf(ServerHttpSecurity.CsrfSpec::disable)
++                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
++                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
++                .logout(ServerHttpSecurity.LogoutSpec::disable)
++                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
++                .authorizeExchange(exchange -> exchange
++                        .pathMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/register").permitAll()
++                        .pathMatchers("/api/v1/customers", "/api/v1/customers/**").hasAnyAuthority(ADMIN_ROLE, SERVICE_ROLE)
++                        .pathMatchers("/api/v1/order-lines", "/api/v1/order-lines/**").hasAnyAuthority(ADMIN_ROLE, SERVICE_ROLE)
++                        .pathMatchers(HttpMethod.GET, "/api/v1/orders", "/api/v1/orders/").hasAnyAuthority(ADMIN_ROLE, SERVICE_ROLE)
++                        .pathMatchers("/api/v1/products/purchase/rollback").hasAnyAuthority(ADMIN_ROLE, SERVICE_ROLE)
++                        .pathMatchers(
++                                "/api/v1/orders", "/api/v1/orders/**",
++                                "/api/v1/products", "/api/v1/products/**",
++                                "/api/v1/payments", "/api/v1/payments/**"
++                        ).hasAnyAuthority(ADMIN_ROLE, USER_ROLE, SERVICE_ROLE)
++                        .anyExchange().hasAnyAuthority(ADMIN_ROLE, SERVICE_ROLE)
++                )
++                .oauth2ResourceServer(oauth2 -> oauth2
++                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
++                        .authenticationEntryPoint(authenticationEntryPoint)
++                        .accessDeniedHandler(accessDeniedHandler)
++                )
++                .exceptionHandling(exceptions -> exceptions
++                        .authenticationEntryPoint(authenticationEntryPoint)
++                        .accessDeniedHandler(accessDeniedHandler)
++                )
++                .build();
++    }
++
++    @Bean
++    public ReactiveJwtDecoder reactiveJwtDecoder(@Value("${application.security.jwt.secret-key}") String secretKey) {
++        var key = new SecretKeySpec(Base64.getDecoder().decode(secretKey), "HmacSHA256");
++        return NimbusReactiveJwtDecoder.withSecretKey(key)
++                .macAlgorithm(MacAlgorithm.HS256)
++                .build();
++    }
++
++    private ReactiveJwtAuthenticationConverterAdapter jwtAuthenticationConverter() {
++        var authoritiesConverter = new JwtGrantedAuthoritiesConverter();
++        authoritiesConverter.setAuthoritiesClaimName(ROLES_CLAIM);
++        authoritiesConverter.setAuthorityPrefix("");
++
++        var authenticationConverter = new JwtAuthenticationConverter();
++        authenticationConverter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
++        return new ReactiveJwtAuthenticationConverterAdapter(authenticationConverter);
++    }
++}
+diff --git a/services/gateway/src/test/java/com/shah/gateway/handler/GatewayExceptionHandlerTests.java b/services/gateway/src/test/java/com/shah/gateway/handler/GatewayExceptionHandlerTests.java
+new file mode 100644
+index 0000000..7d83d80
+--- /dev/null
++++ b/services/gateway/src/test/java/com/shah/gateway/handler/GatewayExceptionHandlerTests.java
+@@ -0,0 +1,86 @@
++package com.shah.gateway.handler;
++
++import com.nimbusds.jose.jwk.source.ImmutableSecret;
++import org.junit.jupiter.api.Test;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
++import org.springframework.boot.test.context.SpringBootTest;
++import org.springframework.http.HttpHeaders;
++import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
++import org.springframework.security.oauth2.jwt.JwsHeader;
++import org.springframework.security.oauth2.jwt.JwtClaimsSet;
++import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
++import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
++import org.springframework.test.web.reactive.server.WebTestClient;
++
++import javax.crypto.spec.SecretKeySpec;
++import java.time.Instant;
++import java.util.Base64;
++import java.util.List;
++
++@SpringBootTest(
++        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
++        properties = {
++                "spring.cloud.config.enabled=false",
++                "eureka.client.enabled=false",
++                "spring.cloud.gateway.discovery.locator.enabled=false",
++                "spring.cloud.gateway.routes[0].id=customer-service",
++                "spring.cloud.gateway.routes[0].uri=lb://customer-service",
++                "spring.cloud.gateway.routes[0].predicates[0]=Path=/api/v1/customers/**",
++                "spring.cloud.gateway.routes[1].id=product-service",
++                "spring.cloud.gateway.routes[1].uri=http://localhost:1",
++                "spring.cloud.gateway.routes[1].predicates[0]=Path=/api/v1/products/**",
++                "application.security.jwt.secret-key=" + GatewayExceptionHandlerTests.SECRET_KEY
++        }
++)
++@AutoConfigureWebTestClient
++class GatewayExceptionHandlerTests {
++
++    static final String SECRET_KEY = "+rplLsk+ZtNlLp+S2M7zrTu2HWVZQ0miRXGW6BvvfhQ9mOK4FtQfkkh35/Ssgz5l";
++
++    @Autowired
++    private WebTestClient webTestClient;
++
++    @Test
++    void shouldReturnReadableErrorWhenNoServiceInstanceIsAvailable() {
++        webTestClient.get().uri("/api/v1/customers")
++                .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken())
++                .exchange()
++                .expectStatus().isEqualTo(503)
++                .expectBody()
++                .jsonPath("$.message").isEqualTo("Customer service is currently unavailable. Please try again later")
++                .jsonPath("$.path").isEqualTo("/api/v1/customers");
++    }
++
++    @Test
++    void shouldReturnReadableErrorWhenServiceRefusesConnection() {
++        webTestClient.get().uri("/api/v1/products")
++                .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken())
++                .exchange()
++                .expectStatus().isEqualTo(503)
++                .expectBody()
++                .jsonPath("$.message").isEqualTo("Localhost is currently unavailable. Please try again later");
++    }
++
++    @Test
++    void shouldReturnReadableErrorWhenRouteDoesNotExist() {
++        webTestClient.get().uri("/api/v1/unknown")
++                .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken())
++                .exchange()
++                .expectStatus().isNotFound()
++                .expectBody()
++                .jsonPath("$.message").isEqualTo("The requested resource /api/v1/unknown was not found");
++    }
++
++    private String adminToken() {
++        var key = new SecretKeySpec(Base64.getDecoder().decode(SECRET_KEY), "HmacSHA256");
++        var encoder = new NimbusJwtEncoder(new ImmutableSecret<>(key));
++        var claims = JwtClaimsSet.builder()
++                .subject("admin@ecommerce.com")
++                .issuedAt(Instant.now())
++                .expiresAt(Instant.now().plusSeconds(300))
++                .claim("roles", List.of("admin_role"))
++                .build();
++        return encoder.encode(JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(), claims)).getTokenValue();
++    }
++}
+diff --git a/services/gateway/src/test/java/com/shah/gateway/security/SecurityConfigTests.java b/services/gateway/src/test/java/com/shah/gateway/security/SecurityConfigTests.java
+new file mode 100644
+index 0000000..6226937
+--- /dev/null
++++ b/services/gateway/src/test/java/com/shah/gateway/security/SecurityConfigTests.java
+@@ -0,0 +1,128 @@
++package com.shah.gateway.security;
++
++import com.nimbusds.jose.jwk.source.ImmutableSecret;
++import org.hamcrest.Matchers;
++import org.junit.jupiter.api.Test;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
++import org.springframework.boot.test.context.SpringBootTest;
++import org.springframework.http.HttpHeaders;
++import org.springframework.http.HttpMethod;
++import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
++import org.springframework.security.oauth2.jwt.JwsHeader;
++import org.springframework.security.oauth2.jwt.JwtClaimsSet;
++import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
++import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
++import org.springframework.test.web.reactive.server.WebTestClient;
++
++import javax.crypto.spec.SecretKeySpec;
++import java.time.Instant;
++import java.util.Base64;
++import java.util.List;
++
++@SpringBootTest(
++        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
++        properties = {
++                "spring.cloud.config.enabled=false",
++                "eureka.client.enabled=false",
++                "spring.cloud.gateway.discovery.locator.enabled=false",
++                "application.security.jwt.secret-key=" + SecurityConfigTests.SECRET_KEY
++        }
++)
++@AutoConfigureWebTestClient
++class SecurityConfigTests {
++
++    static final String SECRET_KEY = "+rplLsk+ZtNlLp+S2M7zrTu2HWVZQ0miRXGW6BvvfhQ9mOK4FtQfkkh35/Ssgz5l";
++
++    @Autowired
++    private WebTestClient webTestClient;
++
++    @Test
++    void shouldRejectRequestWithoutToken() {
++        webTestClient.get().uri("/api/v1/products")
++                .exchange()
++                .expectStatus().isUnauthorized()
++                .expectBody().jsonPath("$.message").value(Matchers.containsString("login"));
++    }
++
++    @Test
++    void shouldRejectExpiredToken() {
++        var token = token(Roles.ADMIN_ROLE, Instant.now().minusSeconds(120));
++        webTestClient.get().uri("/api/v1/products")
++                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
++                .exchange()
++                .expectStatus().isUnauthorized()
++                .expectBody().jsonPath("$.message").isEqualTo("Your session has expired. Please login again to get a new token");
++    }
++
++    @Test
++    void shouldRejectTamperedToken() {
++        var token = token(Roles.ADMIN_ROLE, Instant.now().plusSeconds(300)) + "x";
++        webTestClient.get().uri("/api/v1/products")
++                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
++                .exchange()
++                .expectStatus().isUnauthorized();
++    }
++
++    @Test
++    void shouldAllowLoginWithoutToken() {
++        webTestClient.post().uri("/api/v1/auth/login")
++                .exchange()
++                .expectStatus().isNotFound();
++    }
++
++    @Test
++    void shouldAllowAdminToAccessEveryApi() {
++        assertStatus(Roles.ADMIN_ROLE, HttpMethod.GET, "/api/v1/customers", 404);
++        assertStatus(Roles.ADMIN_ROLE, HttpMethod.GET, "/api/v1/order-lines/orders/1", 404);
++        assertStatus(Roles.ADMIN_ROLE, HttpMethod.GET, "/api/v1/orders", 404);
++        assertStatus(Roles.ADMIN_ROLE, HttpMethod.POST, "/api/v1/orders", 404);
++        assertStatus(Roles.ADMIN_ROLE, HttpMethod.GET, "/api/v1/products", 404);
++        assertStatus(Roles.ADMIN_ROLE, HttpMethod.POST, "/api/v1/payments", 404);
++    }
++
++    @Test
++    void shouldRestrictUserRole() {
++        assertStatus(Roles.USER_ROLE, HttpMethod.GET, "/api/v1/customers", 403);
++        assertStatus(Roles.USER_ROLE, HttpMethod.POST, "/api/v1/customers", 403);
++        assertStatus(Roles.USER_ROLE, HttpMethod.GET, "/api/v1/customers/123", 403);
++        assertStatus(Roles.USER_ROLE, HttpMethod.GET, "/api/v1/order-lines/orders/1", 403);
++        assertStatus(Roles.USER_ROLE, HttpMethod.GET, "/api/v1/orders", 403);
++        assertStatus(Roles.USER_ROLE, HttpMethod.POST, "/api/v1/products/purchase/rollback", 403);
++        assertStatus(Roles.USER_ROLE, HttpMethod.GET, "/customer-service/api/v1/customers", 403);
++    }
++
++    @Test
++    void shouldAllowUserRoleOnPermittedApis() {
++        assertStatus(Roles.USER_ROLE, HttpMethod.POST, "/api/v1/orders", 404);
++        assertStatus(Roles.USER_ROLE, HttpMethod.GET, "/api/v1/orders/1", 404);
++        assertStatus(Roles.USER_ROLE, HttpMethod.GET, "/api/v1/products", 404);
++        assertStatus(Roles.USER_ROLE, HttpMethod.POST, "/api/v1/products/purchase", 404);
++        assertStatus(Roles.USER_ROLE, HttpMethod.POST, "/api/v1/payments", 404);
++    }
++
++    @Test
++    void shouldAllowServiceRoleForInternalCalls() {
++        assertStatus(Roles.SERVICE_ROLE, HttpMethod.GET, "/api/v1/customers/123", 404);
++        assertStatus(Roles.SERVICE_ROLE, HttpMethod.POST, "/api/v1/products/purchase/rollback", 404);
++    }
++
++    private void assertStatus(String role, HttpMethod method, String uri, int expectedStatus) {
++        webTestClient.method(method).uri(uri)
++                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token(role, Instant.now().plusSeconds(300)))
++                .exchange()
++                .expectStatus().isEqualTo(expectedStatus);
++    }
++
++    private String token(String role, Instant expiresAt) {
++        var key = new SecretKeySpec(Base64.getDecoder().decode(SECRET_KEY), "HmacSHA256");
++        var encoder = new NimbusJwtEncoder(new ImmutableSecret<>(key));
++        var claims = JwtClaimsSet.builder()
++                .subject("test@ecommerce.com")
++                .issuedAt(expiresAt.minusSeconds(600))
++                .expiresAt(expiresAt)
++                .claim("roles", List.of(role))
++                .build();
++        return encoder.encode(JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(), claims)).getTokenValue();
++    }
++}
+diff --git a/services/order/pom.xml b/services/order/pom.xml
+index 0ba28b7..e70d8db 100644
+--- a/services/order/pom.xml
++++ b/services/order/pom.xml
+@@ -43,6 +43,18 @@
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-web</artifactId>
+ 		</dependency>
++		<dependency>
++			<groupId>org.springframework.security</groupId>
++			<artifactId>spring-security-oauth2-jose</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.flywaydb</groupId>
++			<artifactId>flyway-core</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.flywaydb</groupId>
++			<artifactId>flyway-database-postgresql</artifactId>
++		</dependency>
+ 		<dependency>
+ 			<groupId>org.springframework.cloud</groupId>
+ 			<artifactId>spring-cloud-starter-config</artifactId>
+diff --git a/services/order/src/main/java/com/shah/ecommerce/config/FeignClientConfig.java b/services/order/src/main/java/com/shah/ecommerce/config/FeignClientConfig.java
+new file mode 100644
+index 0000000..5288461
+--- /dev/null
++++ b/services/order/src/main/java/com/shah/ecommerce/config/FeignClientConfig.java
+@@ -0,0 +1,17 @@
++package com.shah.ecommerce.config;
++
++import com.shah.ecommerce.security.ServiceTokenProvider;
++import feign.RequestInterceptor;
++import org.springframework.context.annotation.Bean;
++import org.springframework.context.annotation.Configuration;
++
++import static org.springframework.http.HttpHeaders.AUTHORIZATION;
++
++@Configuration
++public class FeignClientConfig {
++
++    @Bean
++    public RequestInterceptor serviceTokenRequestInterceptor(ServiceTokenProvider serviceTokenProvider) {
++        return template -> template.header(AUTHORIZATION, "Bearer " + serviceTokenProvider.getToken());
++    }
++}
+diff --git a/services/order/src/main/java/com/shah/ecommerce/config/ResTemplateConfig.java b/services/order/src/main/java/com/shah/ecommerce/config/ResTemplateConfig.java
+index 19d9fb6..0bf661a 100644
+--- a/services/order/src/main/java/com/shah/ecommerce/config/ResTemplateConfig.java
++++ b/services/order/src/main/java/com/shah/ecommerce/config/ResTemplateConfig.java
+@@ -1,5 +1,6 @@
+ package com.shah.ecommerce.config;
+ 
++import com.shah.ecommerce.security.ServiceTokenProvider;
+ import org.springframework.context.annotation.Bean;
+ import org.springframework.context.annotation.Configuration;
+ import org.springframework.web.client.RestTemplate;
+@@ -8,7 +9,12 @@ import org.springframework.web.client.RestTemplate;
+ public class ResTemplateConfig {
+ 
+     @Bean
+-    public RestTemplate restTemplate(){
+-        return new RestTemplate();
++    public RestTemplate restTemplate(ServiceTokenProvider serviceTokenProvider){
++        var restTemplate = new RestTemplate();
++        restTemplate.getInterceptors().add((request, body, execution) -> {
++            request.getHeaders().setBearerAuth(serviceTokenProvider.getToken());
++            return execution.execute(request, body);
++        });
++        return restTemplate;
+     }
+ }
+diff --git a/services/order/src/main/java/com/shah/ecommerce/exception/RemoteServiceErrorHandler.java b/services/order/src/main/java/com/shah/ecommerce/exception/RemoteServiceErrorHandler.java
+new file mode 100644
+index 0000000..6f9d977
+--- /dev/null
++++ b/services/order/src/main/java/com/shah/ecommerce/exception/RemoteServiceErrorHandler.java
+@@ -0,0 +1,89 @@
++package com.shah.ecommerce.exception;
++
++import com.fasterxml.jackson.databind.JsonNode;
++import com.fasterxml.jackson.databind.ObjectMapper;
++import feign.FeignException;
++import lombok.RequiredArgsConstructor;
++import lombok.extern.slf4j.Slf4j;
++import org.springframework.http.HttpStatus;
++import org.springframework.stereotype.Component;
++import org.springframework.web.client.HttpStatusCodeException;
++import org.springframework.web.client.ResourceAccessException;
++
++import java.util.ArrayList;
++import java.util.Optional;
++import java.util.function.Supplier;
++
++@Component
++@RequiredArgsConstructor
++@Slf4j
++public class RemoteServiceErrorHandler {
++
++    private final ObjectMapper objectMapper;
++
++    public <T> T execute(String serviceName, Supplier<T> remoteCall) {
++        try {
++            return remoteCall.get();
++        } catch (FeignException exp) {
++            throw translate(serviceName, exp.status(), exp.contentUTF8(), exp);
++        } catch (HttpStatusCodeException exp) {
++            throw translate(serviceName, exp.getStatusCode().value(), exp.getResponseBodyAsString(), exp);
++        } catch (ResourceAccessException exp) {
++            throw translate(serviceName, -1, null, exp);
++        }
++    }
++
++    private RuntimeException translate(String serviceName, int status, String body, Exception exp) {
++        log.warn("Call to {} failed with status <{}>: {}", serviceName, status, exp.getMessage());
++
++        if (status <= 0
++                || status == HttpStatus.BAD_GATEWAY.value()
++                || status == HttpStatus.SERVICE_UNAVAILABLE.value()
++                || status == HttpStatus.GATEWAY_TIMEOUT.value()) {
++            return new RemoteServiceException(
++                    HttpStatus.SERVICE_UNAVAILABLE,
++                    String.format("%s is currently unavailable, so your request could not be completed. Please try again later", serviceName)
++            );
++        }
++
++        if (status == HttpStatus.UNAUTHORIZED.value() || status == HttpStatus.FORBIDDEN.value()) {
++            return new RemoteServiceException(
++                    HttpStatus.BAD_GATEWAY,
++                    String.format("Order service is not authorized to communicate with %s. Please contact support", serviceName)
++            );
++        }
++
++        if (status >= 400 && status < 500) {
++            return new BusinessException(extractMessage(body)
++                    .orElse(String.format("%s rejected the request", serviceName)));
++        }
++
++        return new RemoteServiceException(
++                HttpStatus.BAD_GATEWAY,
++                String.format("%s failed to process the request. Please try again later", serviceName)
++        );
++    }
++
++    private Optional<String> extractMessage(String body) {
++        if (body == null || body.isBlank()) {
++            return Optional.empty();
++        }
++        var trimmed = body.trim();
++        if (!trimmed.startsWith("{")) {
++            return Optional.of(trimmed);
++        }
++        try {
++            JsonNode json = objectMapper.readTree(trimmed);
++            if (json.hasNonNull("message")) {
++                return Optional.of(json.get("message").asText());
++            }
++            if (json.has("errors") && json.get("errors").isObject()) {
++                var messages = new ArrayList<String>();
++                json.get("errors").fields().forEachRemaining(entry -> messages.add(entry.getValue().asText()));
++                return Optional.of(String.join(", ", messages));
++            }
++        } catch (Exception ignored) {
++        }
++        return Optional.of(trimmed);
++    }
++}
+diff --git a/services/order/src/main/java/com/shah/ecommerce/exception/RemoteServiceException.java b/services/order/src/main/java/com/shah/ecommerce/exception/RemoteServiceException.java
+new file mode 100644
+index 0000000..90239e8
+--- /dev/null
++++ b/services/order/src/main/java/com/shah/ecommerce/exception/RemoteServiceException.java
+@@ -0,0 +1,12 @@
++package com.shah.ecommerce.exception;
++
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++import org.springframework.http.HttpStatus;
++
++@EqualsAndHashCode(callSuper = true)
++@Data
++public class RemoteServiceException extends RuntimeException {
++    private final HttpStatus status;
++    private final String msg;
++}
+diff --git a/services/order/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java b/services/order/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java
+index 4a702c9..08fe6af 100644
+--- a/services/order/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java
++++ b/services/order/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java
+@@ -1,9 +1,12 @@
+ package com.shah.ecommerce.handler;
+ 
+ import com.shah.ecommerce.exception.BusinessException;
++import com.shah.ecommerce.exception.RemoteServiceException;
+ import jakarta.persistence.EntityNotFoundException;
++import lombok.extern.slf4j.Slf4j;
+ import org.springframework.http.HttpStatus;
+ import org.springframework.http.ResponseEntity;
++import org.springframework.http.converter.HttpMessageNotReadableException;
+ import org.springframework.validation.FieldError;
+ import org.springframework.web.bind.MethodArgumentNotValidException;
+ import org.springframework.web.bind.annotation.ExceptionHandler;
+@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
+ import java.util.HashMap;
+ 
+ @RestControllerAdvice
++@Slf4j
+ public class GLobalExceptionHandler {
+ 
+     @ExceptionHandler(BusinessException.class)
+@@ -19,11 +23,21 @@ public class GLobalExceptionHandler {
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exp.getMsg());
+     }
+ 
++    @ExceptionHandler(RemoteServiceException.class)
++    public ResponseEntity<String> handle(RemoteServiceException exp) {
++        return ResponseEntity.status(exp.getStatus()).body(exp.getMsg());
++    }
++
+     @ExceptionHandler(EntityNotFoundException.class)
+     public ResponseEntity<String> handle(EntityNotFoundException exp) {
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exp.getMessage());
+     }
+ 
++    @ExceptionHandler(HttpMessageNotReadableException.class)
++    public ResponseEntity<String> handle(HttpMessageNotReadableException exp) {
++        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The request body is missing or malformed");
++    }
++
+     @ExceptionHandler(MethodArgumentNotValidException.class)
+     public ResponseEntity<ErrorResponse> handle(MethodArgumentNotValidException exp) {
+         var errors = new HashMap<String, String>();
+@@ -36,4 +50,14 @@ public class GLobalExceptionHandler {
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(errors));
+     }
+ 
++    @ExceptionHandler(Exception.class)
++    public ResponseEntity<String> handle(Exception exp) {
++        if (exp instanceof org.springframework.web.ErrorResponse errorResponse) {
++            return ResponseEntity.status(errorResponse.getStatusCode()).body(errorResponse.getBody().getDetail());
++        }
++        log.error("Unexpected error while processing the request", exp);
++        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
++                .body("Something went wrong while processing your request. Please try again later");
++    }
++
+ }
+diff --git a/services/order/src/main/java/com/shah/ecommerce/order/OrderMapper.java b/services/order/src/main/java/com/shah/ecommerce/order/OrderMapper.java
+index 3f2e649..2a246bc 100644
+--- a/services/order/src/main/java/com/shah/ecommerce/order/OrderMapper.java
++++ b/services/order/src/main/java/com/shah/ecommerce/order/OrderMapper.java
+@@ -7,12 +7,12 @@ import java.math.BigDecimal;
+ 
+ @Service
+ public class OrderMapper {
+-    public Order toOrder(OrderRequest request, BigDecimal totalAmt) {
++    public Order toOrder(OrderRequest request, String reference, BigDecimal totalAmt) {
+         return Order.builder()
+                 .id(request.id())
+                 .customerId(request.customerId())
+                 .totalAmount(totalAmt)
+-                .reference(request.reference())
++                .reference(reference)
+                 .paymentMethod(request.paymentMethod())
+                 .build();
+     }
+diff --git a/services/order/src/main/java/com/shah/ecommerce/order/OrderRepository.java b/services/order/src/main/java/com/shah/ecommerce/order/OrderRepository.java
+index 1959f8c..83ccdf8 100644
+--- a/services/order/src/main/java/com/shah/ecommerce/order/OrderRepository.java
++++ b/services/order/src/main/java/com/shah/ecommerce/order/OrderRepository.java
+@@ -1,6 +1,10 @@
+ package com.shah.ecommerce.order;
+ 
+ import org.springframework.data.jpa.repository.JpaRepository;
++import org.springframework.data.jpa.repository.Query;
+ 
+ public interface OrderRepository extends JpaRepository<Order,Integer> {
++
++    @Query(value = "select nextval('order_reference_seq')", nativeQuery = true)
++    Long nextReferenceNumber();
+ }
+diff --git a/services/order/src/main/java/com/shah/ecommerce/order/OrderRequest.java b/services/order/src/main/java/com/shah/ecommerce/order/OrderRequest.java
+index dd71c60..7518f3f 100644
+--- a/services/order/src/main/java/com/shah/ecommerce/order/OrderRequest.java
++++ b/services/order/src/main/java/com/shah/ecommerce/order/OrderRequest.java
+@@ -11,7 +11,6 @@ import java.util.List;
+ 
+ public record OrderRequest(
+         Integer id,
+-        String reference,
+         @Positive(message = "Order amount should be positive")
+         BigDecimal ammount,
+         @NotNull(message = "Payment method should be precised")
+diff --git a/services/order/src/main/java/com/shah/ecommerce/order/OrderService.java b/services/order/src/main/java/com/shah/ecommerce/order/OrderService.java
+index ee46f68..3b6a9ee 100644
+--- a/services/order/src/main/java/com/shah/ecommerce/order/OrderService.java
++++ b/services/order/src/main/java/com/shah/ecommerce/order/OrderService.java
+@@ -3,6 +3,7 @@ package com.shah.ecommerce.order;
+ import com.shah.ecommerce.customer.CustomerClient;
+ import com.shah.ecommerce.customer.CustomerResponse;
+ import com.shah.ecommerce.exception.BusinessException;
++import com.shah.ecommerce.exception.RemoteServiceErrorHandler;
+ import com.shah.ecommerce.kafka.OrderConfirmation;
+ import com.shah.ecommerce.kafka.OrderProducer;
+ import com.shah.ecommerce.orderline.OrderLineRequest;
+@@ -11,19 +12,30 @@ import com.shah.ecommerce.payment.PaymentClient;
+ import com.shah.ecommerce.payment.PaymentRequest;
+ import com.shah.ecommerce.product.ProductClient;
+ import com.shah.ecommerce.product.PurchaseRequest;
++import feign.FeignException;
+ import jakarta.persistence.EntityNotFoundException;
+ import jakarta.validation.Valid;
+ import lombok.RequiredArgsConstructor;
++import lombok.extern.slf4j.Slf4j;
+ import org.springframework.stereotype.Service;
++import org.springframework.transaction.annotation.Transactional;
++import org.springframework.transaction.support.TransactionSynchronization;
++import org.springframework.transaction.support.TransactionSynchronizationManager;
+ 
+ import java.math.BigDecimal;
+ import java.util.List;
+-import java.util.stream.Collectors;
++import java.util.Optional;
+ 
+ @Service
+ @RequiredArgsConstructor
++@Slf4j
+ public class OrderService {
+ 
++    private static final String CUSTOMER_SERVICE = "Customer service";
++    private static final String PRODUCT_SERVICE = "Product service";
++    private static final String PAYMENT_SERVICE = "Payment service";
++    private static final String ORDER_REFERENCE_PREFIX = "ORD-";
++
+     private final OrderRepository orderRepository;
+     private final CustomerClient customerClient;
+     private final ProductClient productClient;
+@@ -31,18 +43,24 @@ public class OrderService {
+     private final OrderLineService orderLineService;
+     private final OrderProducer orderProducer;
+     private final PaymentClient paymentClient;
++    private final RemoteServiceErrorHandler remoteServiceErrorHandler;
+ 
++    @Transactional(rollbackFor = Exception.class)
+     public Integer createOrder(@Valid OrderRequest request) {
+ //        check the customer -> Openfeign
+-        var customer = this.customerClient.findCustomerById(request.customerId())
+-                .orElseThrow(()-> new BusinessException(String.format("Can't create order:: No Customer exist with the provided customer id:: %s",request.customerId())));
++        var customer = findCustomer(request.customerId());
+ 
+         // purchase the product | (RestTemplate)
+-        var purchasedProducts = this.productClient.purchaseProducts(request.products());
++        var purchasedProducts = remoteServiceErrorHandler.execute(
++                PRODUCT_SERVICE,
++                () -> this.productClient.purchaseProducts(request.products())
++        );
++        rollbackPurchaseIfOrderFails(request.products());
+ 
+         var totalAmt = purchasedProducts.stream().map((product)-> product.price().multiply(BigDecimal.valueOf(product.quantity()))).reduce(BigDecimal.ZERO, BigDecimal::add);
++        var reference = generateOrderReference();
+         // persist the order
+-        var order = this.orderRepository.save(mapper.toOrder(request, totalAmt));
++        var order = this.orderRepository.save(mapper.toOrder(request, reference, totalAmt));
+ 
+         // persist orderline
+         for (PurchaseRequest purchaseRequest: request.products()){
+@@ -55,24 +73,26 @@ public class OrderService {
+                     )
+             );
+         }
++        this.orderRepository.flush();
+ 
+         // start payment process
+-        paymentClient.requestOrderPayment(
+-                new PaymentRequest(
+-                        totalAmt,
+-                        order.getId(),
+-                        request.reference(),
+-                        request.paymentMethod(),
+-                        customer
++        remoteServiceErrorHandler.execute(
++                PAYMENT_SERVICE,
++                () -> paymentClient.requestOrderPayment(
++                        new PaymentRequest(
++                                totalAmt,
++                                order.getId(),
++                                reference,
++                                request.paymentMethod(),
++                                customer
++                        )
+                 )
+         );
+ 
+-
+-        // send the order confirmation -->  notification-ms (kafka)
+-
+-        orderProducer.sendOrderConfirmation(
++        // send the order confirmation -->  notification-ms (kafka), only once the order is committed
++        sendOrderConfirmationAfterCommit(
+                 new OrderConfirmation(
+-                        request.reference(),
++                        reference,
+                         totalAmt,
+                         request.paymentMethod(),
+                         customer,
+@@ -94,4 +114,52 @@ public class OrderService {
+                 .map(mapper::fromOrder)
+                 .orElseThrow(() -> new EntityNotFoundException(String.format("No oder found with the given ID: %d", orderId)));
+     }
++
++    private CustomerResponse findCustomer(String customerId) {
++        return remoteServiceErrorHandler.execute(CUSTOMER_SERVICE, () -> {
++                    try {
++                        return this.customerClient.findCustomerById(customerId);
++                    } catch (FeignException.NotFound exp) {
++                        return Optional.<CustomerResponse>empty();
++                    }
++                })
++                .orElseThrow(()-> new BusinessException(String.format("Can't create order:: No Customer exist with the provided customer id:: %s", customerId)));
++    }
++
++    private String generateOrderReference() {
++        return ORDER_REFERENCE_PREFIX + orderRepository.nextReferenceNumber();
++    }
++
++    private void rollbackPurchaseIfOrderFails(List<PurchaseRequest> products) {
++        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
++            @Override
++            public void afterCompletion(int status) {
++                if (status == STATUS_COMMITTED) {
++                    return;
++                }
++                try {
++                    remoteServiceErrorHandler.execute(PRODUCT_SERVICE, () -> {
++                        productClient.rollbackPurchase(products);
++                        return null;
++                    });
++                    log.info("Order creation failed, purchased products stock has been restored");
++                } catch (RuntimeException exp) {
++                    log.error("Order creation failed and the purchased products stock could not be restored, manual action required for products <{}>", products, exp);
++                }
++            }
++        });
++    }
++
++    private void sendOrderConfirmationAfterCommit(OrderConfirmation orderConfirmation) {
++        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
++            @Override
++            public void afterCommit() {
++                try {
++                    orderProducer.sendOrderConfirmation(orderConfirmation);
++                } catch (RuntimeException exp) {
++                    log.error("Order <{}> was created but the order confirmation could not be sent", orderConfirmation.orderReference(), exp);
++                }
++            }
++        });
++    }
+ }
+diff --git a/services/order/src/main/java/com/shah/ecommerce/product/ProductClient.java b/services/order/src/main/java/com/shah/ecommerce/product/ProductClient.java
+index a9e089b..b2cbe44 100644
+--- a/services/order/src/main/java/com/shah/ecommerce/product/ProductClient.java
++++ b/services/order/src/main/java/com/shah/ecommerce/product/ProductClient.java
+@@ -22,10 +22,7 @@ public class ProductClient {
+     private final RestTemplate restTemplate;
+ 
+     public List<PurchaseResponse> purchaseProducts(List<PurchaseRequest> requestBody){
+-        HttpHeaders headers = new HttpHeaders();
+-        headers.set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
+-
+-        HttpEntity<List<PurchaseRequest>> requestEntity = new HttpEntity<>(requestBody, headers);
++        HttpEntity<List<PurchaseRequest>> requestEntity = new HttpEntity<>(requestBody, jsonHeaders());
+         ParameterizedTypeReference<List<PurchaseResponse>> responseType = new ParameterizedTypeReference<>() {};
+         ResponseEntity<List<PurchaseResponse>> responseEntity = restTemplate.exchange(
+                 productUrl+"/purchase",
+@@ -40,4 +37,24 @@ public class ProductClient {
+ 
+         return responseEntity.getBody();
+     }
++
++    public void rollbackPurchase(List<PurchaseRequest> requestBody){
++        HttpEntity<List<PurchaseRequest>> requestEntity = new HttpEntity<>(requestBody, jsonHeaders());
++        ResponseEntity<Void> responseEntity = restTemplate.exchange(
++                productUrl+"/purchase/rollback",
++                POST,
++                requestEntity,
++                Void.class
++        );
++
++        if (responseEntity.getStatusCode().isError()){
++            throw new BusinessException("An error occurred while rolling back the purchase request: "+ responseEntity.getStatusCode());
++        }
++    }
++
++    private HttpHeaders jsonHeaders(){
++        HttpHeaders headers = new HttpHeaders();
++        headers.set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
++        return headers;
++    }
+ }
+diff --git a/services/order/src/main/java/com/shah/ecommerce/security/ServiceTokenProvider.java b/services/order/src/main/java/com/shah/ecommerce/security/ServiceTokenProvider.java
+new file mode 100644
+index 0000000..6c78d6c
+--- /dev/null
++++ b/services/order/src/main/java/com/shah/ecommerce/security/ServiceTokenProvider.java
+@@ -0,0 +1,52 @@
++package com.shah.ecommerce.security;
++
++import com.nimbusds.jose.jwk.source.ImmutableSecret;
++import org.springframework.beans.factory.annotation.Value;
++import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
++import org.springframework.security.oauth2.jwt.JwsHeader;
++import org.springframework.security.oauth2.jwt.JwtClaimsSet;
++import org.springframework.security.oauth2.jwt.JwtEncoder;
++import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
++import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
++import org.springframework.stereotype.Component;
++
++import javax.crypto.spec.SecretKeySpec;
++import java.time.Duration;
++import java.time.Instant;
++import java.util.Base64;
++import java.util.List;
++
++@Component
++public class ServiceTokenProvider {
++
++    private static final String SERVICE_NAME = "order-service";
++    private static final String SERVICE_ROLE = "service_role";
++    private static final Duration TOKEN_VALIDITY = Duration.ofMinutes(15);
++    private static final Duration RENEWAL_MARGIN = Duration.ofMinutes(1);
++
++    private final JwtEncoder jwtEncoder;
++    private String token;
++    private Instant expiresAt = Instant.EPOCH;
++
++    public ServiceTokenProvider(@Value("${application.security.jwt.secret-key}") String secretKey) {
++        var key = new SecretKeySpec(Base64.getDecoder().decode(secretKey), "HmacSHA256");
++        this.jwtEncoder = new NimbusJwtEncoder(new ImmutableSecret<>(key));
++    }
++
++    public synchronized String getToken() {
++        if (token == null || Instant.now().isAfter(expiresAt.minus(RENEWAL_MARGIN))) {
++            var issuedAt = Instant.now();
++            expiresAt = issuedAt.plus(TOKEN_VALIDITY);
++            var claims = JwtClaimsSet.builder()
++                    .issuer(SERVICE_NAME)
++                    .subject(SERVICE_NAME)
++                    .issuedAt(issuedAt)
++                    .expiresAt(expiresAt)
++                    .claim("roles", List.of(SERVICE_ROLE))
++                    .build();
++            var header = JwsHeader.with(MacAlgorithm.HS256).build();
++            token = jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
++        }
++        return token;
++    }
++}
+diff --git a/services/order/src/main/resources/db/migration/V1__init_database.sql b/services/order/src/main/resources/db/migration/V1__init_database.sql
+new file mode 100644
+index 0000000..2169f18
+--- /dev/null
++++ b/services/order/src/main/resources/db/migration/V1__init_database.sql
+@@ -0,0 +1,22 @@
++create table if not exists customer_order
++(
++    id                 integer      not null primary key,
++    reference          varchar(255),
++    total_amount       numeric(38, 2),
++    payment_method     varchar(255),
++    customer_id        varchar(255),
++    created_date       timestamp(6) not null,
++    last_modified_date timestamp(6)
++);
++
++create table if not exists order_line
++(
++    id         integer not null primary key,
++    order_id   integer
++        constraint fk_order_line_customer_order references customer_order,
++    product_id integer,
++    quantity   double precision
++);
++
++create sequence if not exists customer_order_seq increment by 50;
++create sequence if not exists order_line_seq increment by 50;
+diff --git a/services/order/src/main/resources/db/migration/V2__create_order_reference_sequence.sql b/services/order/src/main/resources/db/migration/V2__create_order_reference_sequence.sql
+new file mode 100644
+index 0000000..50d68f4
+--- /dev/null
++++ b/services/order/src/main/resources/db/migration/V2__create_order_reference_sequence.sql
+@@ -0,0 +1 @@
++create sequence if not exists order_reference_seq start with 1001 increment by 1;
+diff --git a/services/order/src/test/java/com/shah/ecommerce/exception/RemoteServiceErrorHandlerTests.java b/services/order/src/test/java/com/shah/ecommerce/exception/RemoteServiceErrorHandlerTests.java
+new file mode 100644
+index 0000000..83e9f7c
+--- /dev/null
++++ b/services/order/src/test/java/com/shah/ecommerce/exception/RemoteServiceErrorHandlerTests.java
+@@ -0,0 +1,90 @@
++package com.shah.ecommerce.exception;
++
++import com.fasterxml.jackson.databind.ObjectMapper;
++import feign.FeignException;
++import feign.Request;
++import feign.Response;
++import org.junit.jupiter.api.Test;
++import org.springframework.http.HttpStatus;
++import org.springframework.web.client.HttpClientErrorException;
++import org.springframework.web.client.ResourceAccessException;
++
++import java.nio.charset.StandardCharsets;
++import java.util.Map;
++
++import static org.assertj.core.api.Assertions.assertThat;
++import static org.assertj.core.api.Assertions.assertThatThrownBy;
++
++class RemoteServiceErrorHandlerTests {
++
++    private final RemoteServiceErrorHandler handler = new RemoteServiceErrorHandler(new ObjectMapper());
++
++    @Test
++    void shouldReturnResultWhenRemoteCallSucceeds() {
++        assertThat(handler.execute("Customer service", () -> "ok")).isEqualTo("ok");
++    }
++
++    @Test
++    void shouldTranslateUnavailableServiceIntoReadableError() {
++        assertThatThrownBy(() -> handler.execute("Customer service", () -> {
++            throw feignException(503, "{\"message\":\"Customer service is currently unavailable. Please try again later\"}");
++        }))
++                .isInstanceOfSatisfying(RemoteServiceException.class, exp -> {
++                    assertThat(exp.getStatus()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
++                    assertThat(exp.getMsg()).isEqualTo("Customer service is currently unavailable, so your request could not be completed. Please try again later");
++                });
++    }
++
++    @Test
++    void shouldTranslateConnectionFailureIntoReadableError() {
++        assertThatThrownBy(() -> handler.execute("Product service", () -> {
++            throw new ResourceAccessException("Connection refused");
++        }))
++                .isInstanceOfSatisfying(RemoteServiceException.class, exp -> {
++                    assertThat(exp.getStatus()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
++                    assertThat(exp.getMsg()).startsWith("Product service is currently unavailable");
++                });
++    }
++
++    @Test
++    void shouldExposeDownstreamBusinessErrorMessage() {
++        assertThatThrownBy(() -> handler.execute("Product service", () -> {
++            throw HttpClientErrorException.create(HttpStatus.BAD_REQUEST, "Bad Request", null,
++                    "Insufficient stock quantity for product with ID:: 1".getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
++        }))
++                .isInstanceOfSatisfying(BusinessException.class, exp ->
++                        assertThat(exp.getMsg()).isEqualTo("Insufficient stock quantity for product with ID:: 1"));
++    }
++
++    @Test
++    void shouldJoinDownstreamValidationErrors() {
++        assertThatThrownBy(() -> handler.execute("Payment service", () -> {
++            throw feignException(400, "{\"errors\":{\"amount\":\"Amount is required\"}}");
++        }))
++                .isInstanceOfSatisfying(BusinessException.class, exp ->
++                        assertThat(exp.getMsg()).isEqualTo("Amount is required"));
++    }
++
++    @Test
++    void shouldTranslateAuthorizationFailure() {
++        assertThatThrownBy(() -> handler.execute("Payment service", () -> {
++            throw feignException(403, "");
++        }))
++                .isInstanceOfSatisfying(RemoteServiceException.class, exp -> {
++                    assertThat(exp.getStatus()).isEqualTo(HttpStatus.BAD_GATEWAY);
++                    assertThat(exp.getMsg()).isEqualTo("Order service is not authorized to communicate with Payment service. Please contact support");
++                });
++    }
++
++    private FeignException feignException(int status, String body) {
++        var request = Request.create(Request.HttpMethod.POST, "http://localhost:8222/api/v1/test", Map.of(), null, StandardCharsets.UTF_8, null);
++        var response = Response.builder()
++                .status(status)
++                .reason("error")
++                .request(request)
++                .headers(Map.of())
++                .body(body, StandardCharsets.UTF_8)
++                .build();
++        return FeignException.errorStatus("TestClient#call()", response);
++    }
++}
+diff --git a/services/order/src/test/java/com/shah/ecommerce/order/OrderServiceTests.java b/services/order/src/test/java/com/shah/ecommerce/order/OrderServiceTests.java
+new file mode 100644
+index 0000000..83221fb
+--- /dev/null
++++ b/services/order/src/test/java/com/shah/ecommerce/order/OrderServiceTests.java
+@@ -0,0 +1,147 @@
++package com.shah.ecommerce.order;
++
++import com.fasterxml.jackson.databind.ObjectMapper;
++import com.shah.ecommerce.customer.CustomerClient;
++import com.shah.ecommerce.customer.CustomerResponse;
++import com.shah.ecommerce.exception.BusinessException;
++import com.shah.ecommerce.exception.RemoteServiceErrorHandler;
++import com.shah.ecommerce.exception.RemoteServiceException;
++import com.shah.ecommerce.kafka.OrderConfirmation;
++import com.shah.ecommerce.kafka.OrderProducer;
++import com.shah.ecommerce.orderline.OrderLineService;
++import com.shah.ecommerce.payment.PaymentClient;
++import com.shah.ecommerce.payment.PaymentRequest;
++import com.shah.ecommerce.product.ProductClient;
++import com.shah.ecommerce.product.PurchaseRequest;
++import com.shah.ecommerce.product.PurchaseResponse;
++import org.junit.jupiter.api.AfterEach;
++import org.junit.jupiter.api.BeforeEach;
++import org.junit.jupiter.api.Test;
++import org.mockito.ArgumentCaptor;
++import org.springframework.http.HttpStatus;
++import org.springframework.transaction.support.TransactionSynchronization;
++import org.springframework.transaction.support.TransactionSynchronizationManager;
++import org.springframework.web.client.ResourceAccessException;
++
++import java.math.BigDecimal;
++import java.util.List;
++import java.util.Optional;
++
++import static org.assertj.core.api.Assertions.assertThat;
++import static org.assertj.core.api.Assertions.assertThatThrownBy;
++import static org.mockito.ArgumentMatchers.any;
++import static org.mockito.Mockito.*;
++
++class OrderServiceTests {
++
++    private final OrderRepository orderRepository = mock(OrderRepository.class);
++    private final CustomerClient customerClient = mock(CustomerClient.class);
++    private final ProductClient productClient = mock(ProductClient.class);
++    private final OrderLineService orderLineService = mock(OrderLineService.class);
++    private final OrderProducer orderProducer = mock(OrderProducer.class);
++    private final PaymentClient paymentClient = mock(PaymentClient.class);
++
++    private final OrderService orderService = new OrderService(
++            orderRepository,
++            customerClient,
++            productClient,
++            new OrderMapper(),
++            orderLineService,
++            orderProducer,
++            paymentClient,
++            new RemoteServiceErrorHandler(new ObjectMapper())
++    );
++
++    private final List<PurchaseRequest> products = List.of(new PurchaseRequest(1, 2));
++    private final OrderRequest request = new OrderRequest(null, null, PaymentMethod.VISA, "customer-1", products);
++    private final CustomerResponse customer = new CustomerResponse("customer-1", "John", "Doe", "john@doe.com");
++
++    @BeforeEach
++    void setUp() {
++        TransactionSynchronizationManager.initSynchronization();
++        when(customerClient.findCustomerById("customer-1")).thenReturn(Optional.of(customer));
++        when(productClient.purchaseProducts(products)).thenReturn(List.of(
++                new PurchaseResponse(1, "Laptop", "High performance laptop", BigDecimal.valueOf(100), 2)
++        ));
++        when(orderRepository.nextReferenceNumber()).thenReturn(1001L);
++        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
++            Order order = invocation.getArgument(0);
++            order.setId(1);
++            return order;
++        });
++    }
++
++    @AfterEach
++    void tearDown() {
++        TransactionSynchronizationManager.clear();
++    }
++
++    @Test
++    void shouldAutoGenerateReferenceAndSendConfirmationAfterCommit() {
++        var orderId = orderService.createOrder(request);
++
++        assertThat(orderId).isEqualTo(1);
++        var orderCaptor = ArgumentCaptor.forClass(Order.class);
++        verify(orderRepository).save(orderCaptor.capture());
++        assertThat(orderCaptor.getValue().getReference()).isEqualTo("ORD-1001");
++        assertThat(orderCaptor.getValue().getTotalAmount()).isEqualByComparingTo("200");
++
++        var paymentCaptor = ArgumentCaptor.forClass(PaymentRequest.class);
++        verify(paymentClient).requestOrderPayment(paymentCaptor.capture());
++        assertThat(paymentCaptor.getValue().orderReference()).isEqualTo("ORD-1001");
++        verifyNoInteractions(orderProducer);
++
++        completeTransaction(TransactionSynchronization.STATUS_COMMITTED);
++
++        var confirmationCaptor = ArgumentCaptor.forClass(OrderConfirmation.class);
++        verify(orderProducer).sendOrderConfirmation(confirmationCaptor.capture());
++        assertThat(confirmationCaptor.getValue().orderReference()).isEqualTo("ORD-1001");
++        verify(productClient, never()).rollbackPurchase(any());
++    }
++
++    @Test
++    void shouldRestoreProductStockWhenOrderCreationFails() {
++        when(paymentClient.requestOrderPayment(any())).thenThrow(new ResourceAccessException("Connection refused"));
++
++        assertThatThrownBy(() -> orderService.createOrder(request))
++                .isInstanceOfSatisfying(RemoteServiceException.class, exp -> {
++                    assertThat(exp.getStatus()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
++                    assertThat(exp.getMsg()).startsWith("Payment service is currently unavailable");
++                });
++
++        completeTransaction(TransactionSynchronization.STATUS_ROLLED_BACK);
++
++        verify(productClient).rollbackPurchase(products);
++        verifyNoInteractions(orderProducer);
++    }
++
++    @Test
++    void shouldNotRestoreProductStockWhenPurchaseFails() {
++        when(productClient.purchaseProducts(products)).thenThrow(new ResourceAccessException("Connection refused"));
++
++        assertThatThrownBy(() -> orderService.createOrder(request)).isInstanceOf(RemoteServiceException.class);
++
++        completeTransaction(TransactionSynchronization.STATUS_ROLLED_BACK);
++
++        verify(productClient, never()).rollbackPurchase(any());
++        verify(orderRepository, never()).save(any());
++    }
++
++    @Test
++    void shouldRejectUnknownCustomer() {
++        when(customerClient.findCustomerById("customer-1")).thenReturn(Optional.empty());
++
++        assertThatThrownBy(() -> orderService.createOrder(request))
++                .isInstanceOfSatisfying(BusinessException.class, exp ->
++                        assertThat(exp.getMsg()).contains("No Customer exist with the provided customer id:: customer-1"));
++        verifyNoInteractions(productClient);
++    }
++
++    private void completeTransaction(int status) {
++        var synchronizations = TransactionSynchronizationManager.getSynchronizations();
++        if (status == TransactionSynchronization.STATUS_COMMITTED) {
++            synchronizations.forEach(TransactionSynchronization::afterCommit);
++        }
++        synchronizations.forEach(synchronization -> synchronization.afterCompletion(status));
++    }
++}
+diff --git a/services/payment/src/main/java/com/shah/ecommerce/handler/ErrorResponse.java b/services/payment/src/main/java/com/shah/ecommerce/handler/ErrorResponse.java
+new file mode 100644
+index 0000000..941c2af
+--- /dev/null
++++ b/services/payment/src/main/java/com/shah/ecommerce/handler/ErrorResponse.java
+@@ -0,0 +1,8 @@
++package com.shah.ecommerce.handler;
++
++import java.util.Map;
++
++public record ErrorResponse(
++        Map<String, String> errors
++) {
++}
+diff --git a/services/payment/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java b/services/payment/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java
+new file mode 100644
+index 0000000..f3bc486
+--- /dev/null
++++ b/services/payment/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java
+@@ -0,0 +1,46 @@
++package com.shah.ecommerce.handler;
++
++import lombok.extern.slf4j.Slf4j;
++import org.springframework.http.HttpStatus;
++import org.springframework.http.ResponseEntity;
++import org.springframework.http.converter.HttpMessageNotReadableException;
++import org.springframework.validation.FieldError;
++import org.springframework.web.bind.MethodArgumentNotValidException;
++import org.springframework.web.bind.annotation.ExceptionHandler;
++import org.springframework.web.bind.annotation.RestControllerAdvice;
++
++import java.util.HashMap;
++
++@RestControllerAdvice
++@Slf4j
++public class GLobalExceptionHandler {
++
++    @ExceptionHandler(HttpMessageNotReadableException.class)
++    public ResponseEntity<String> handle(HttpMessageNotReadableException exp){
++        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The request body is missing or malformed");
++    }
++
++    @ExceptionHandler(MethodArgumentNotValidException.class)
++    public ResponseEntity<ErrorResponse> handle(MethodArgumentNotValidException exp){
++        var errors = new HashMap<String,String>();
++                exp.getBindingResult().getAllErrors()
++                .forEach(error -> {
++                    String fieldName = ((FieldError)error).getField();
++                    String msg = error.getDefaultMessage();
++                    errors.put(fieldName,msg);
++                });
++
++        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(errors));
++    }
++
++    @ExceptionHandler(Exception.class)
++    public ResponseEntity<String> handle(Exception exp){
++        if (exp instanceof org.springframework.web.ErrorResponse errorResponse){
++            return ResponseEntity.status(errorResponse.getStatusCode()).body(errorResponse.getBody().getDetail());
++        }
++        log.error("Unexpected error while processing the request", exp);
++        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
++                .body("Something went wrong while processing your request. Please try again later");
++    }
++
++}
+diff --git a/services/product/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java b/services/product/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java
+index ff41569..65056c3 100644
+--- a/services/product/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java
++++ b/services/product/src/main/java/com/shah/ecommerce/handler/GLobalExceptionHandler.java
+@@ -2,6 +2,7 @@ package com.shah.ecommerce.handler;
+ 
+ import com.shah.ecommerce.exception.ProductPurchaseException;
+ import jakarta.persistence.EntityNotFoundException;
++import lombok.extern.slf4j.Slf4j;
+ import org.springframework.http.HttpStatus;
+ import org.springframework.http.ResponseEntity;
+ import org.springframework.validation.FieldError;
+@@ -12,11 +13,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
+ import java.util.HashMap;
+ 
+ @RestControllerAdvice
++@Slf4j
+ public class GLobalExceptionHandler {
+ 
+     @ExceptionHandler(ProductPurchaseException.class)
+     public ResponseEntity<String> handle(ProductPurchaseException exp){
+-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exp.getMessage());
++        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exp.getMsg());
+     }
+ 
+     @ExceptionHandler(EntityNotFoundException.class)
+@@ -37,4 +39,14 @@ public class GLobalExceptionHandler {
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(errors));
+     }
+ 
++    @ExceptionHandler(Exception.class)
++    public ResponseEntity<String> handle(Exception exp){
++        if (exp instanceof org.springframework.web.ErrorResponse errorResponse){
++            return ResponseEntity.status(errorResponse.getStatusCode()).body(errorResponse.getBody().getDetail());
++        }
++        log.error("Unexpected error while processing the request", exp);
++        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
++                .body("Something went wrong while processing your request. Please try again later");
++    }
++
+ }
+diff --git a/services/product/src/main/java/com/shah/ecommerce/product/ProductControler.java b/services/product/src/main/java/com/shah/ecommerce/product/ProductControler.java
+index 4e85eb2..6c631a6 100644
+--- a/services/product/src/main/java/com/shah/ecommerce/product/ProductControler.java
++++ b/services/product/src/main/java/com/shah/ecommerce/product/ProductControler.java
+@@ -24,6 +24,12 @@ public class ProductControler {
+         return ResponseEntity.ok(service.purchaseProduct(request));
+     }
+ 
++    @PostMapping("/purchase/rollback")
++    public ResponseEntity<Void> rollbackPurchase(@RequestBody @Valid List<ProductPurchaseRequest> request){
++        service.rollbackPurchase(request);
++        return ResponseEntity.ok().build();
++    }
++
+     @GetMapping("/{product-id}")
+     public ResponseEntity<ProductResponse> findById(@PathVariable("product-id") Integer productId){
+         return ResponseEntity.ok(service.findById(productId));
+diff --git a/services/product/src/main/java/com/shah/ecommerce/product/ProductService.java b/services/product/src/main/java/com/shah/ecommerce/product/ProductService.java
+index ceefc0b..3ecf2d5 100644
+--- a/services/product/src/main/java/com/shah/ecommerce/product/ProductService.java
++++ b/services/product/src/main/java/com/shah/ecommerce/product/ProductService.java
+@@ -5,10 +5,12 @@ import jakarta.persistence.EntityNotFoundException;
+ import jakarta.validation.Valid;
+ import lombok.RequiredArgsConstructor;
+ import org.springframework.stereotype.Service;
++import org.springframework.transaction.annotation.Transactional;
+ 
+ import java.util.ArrayList;
+ import java.util.Comparator;
+ import java.util.List;
++import java.util.function.Function;
+ import java.util.stream.Collectors;
+ 
+ @RequiredArgsConstructor
+@@ -26,7 +28,7 @@ public class ProductService {
+     public ProductResponse findById(Integer productId) {
+         return repository.findById(productId)
+                 .map(mapper::toProductResponse)
+-                .orElseThrow(() -> new EntityNotFoundException("Product not found with the given ID:: %s" + productId));
++                .orElseThrow(() -> new EntityNotFoundException(String.format("Product not found with the given ID:: %s", productId)));
+     }
+ 
+     public List<ProductResponse> findAll() {
+@@ -35,6 +37,7 @@ public class ProductService {
+                 .collect(Collectors.toList());
+     }
+ 
++    @Transactional(rollbackFor = Exception.class)
+     public List<ProductPurchaseResponse> purchaseProduct(List<ProductPurchaseRequest> request) {
+         var productIds = request.stream().map(ProductPurchaseRequest::productId).toList();
+         var storedProducts = repository.findAllByIdInOrderById(productIds);
+@@ -51,7 +54,7 @@ public class ProductService {
+             var storedProduct = storedProducts.get(i);
+             var requestedProduct = requestedProducts.get(i);
+             if (storedProduct.getAvailableQuantity() < requestedProduct.quantity()){
+-                throw new ProductPurchaseException("Insufficient stock quantity for product with ID:: %s" + storedProduct.getId());
++                throw new ProductPurchaseException(String.format("Insufficient stock quantity for product with ID:: %s", storedProduct.getId()));
+             }
+             var newAvailableQuantity = storedProduct.getAvailableQuantity() - requestedProduct.quantity();
+             storedProduct.setAvailableQuantity(newAvailableQuantity);
+@@ -62,4 +65,21 @@ public class ProductService {
+ 
+         return purchasedProducts;
+     }
++
++    @Transactional(rollbackFor = Exception.class)
++    public void rollbackPurchase(List<ProductPurchaseRequest> request) {
++        var productIds = request.stream().map(ProductPurchaseRequest::productId).distinct().toList();
++        var storedProducts = repository.findAllByIdInOrderById(productIds);
++        if (storedProducts.size() != productIds.size()){
++            throw new ProductPurchaseException("One or more products doesn't exists");
++        }
++
++        var productsById = storedProducts.stream()
++                .collect(Collectors.toMap(Product::getId, Function.identity()));
++        for (ProductPurchaseRequest requestedProduct : request){
++            var storedProduct = productsById.get(requestedProduct.productId());
++            storedProduct.setAvailableQuantity(storedProduct.getAvailableQuantity() + requestedProduct.quantity());
++        }
++        repository.saveAll(storedProducts);
++    }
+ }

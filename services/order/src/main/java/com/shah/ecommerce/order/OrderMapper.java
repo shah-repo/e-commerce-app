@@ -7,12 +7,12 @@ import java.math.BigDecimal;
 
 @Service
 public class OrderMapper {
-    public Order toOrder(OrderRequest request, BigDecimal totalAmt) {
+    public Order toOrder(OrderRequest request, String reference, BigDecimal totalAmt) {
         return Order.builder()
                 .id(request.id())
                 .customerId(request.customerId())
                 .totalAmount(totalAmt)
-                .reference(request.reference())
+                .reference(reference)
                 .paymentMethod(request.paymentMethod())
                 .build();
     }
